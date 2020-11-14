@@ -12,6 +12,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
+    "strictPropertyInitialization": false, // Entity class's properties do not have to be initialized in the constructor
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "baseUrl": ".",
