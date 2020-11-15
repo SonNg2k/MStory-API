@@ -1,17 +1,36 @@
-import express, {Response, Request, NextFunction, Application} from 'express'
+import express, { Response, Request, NextFunction, Application } from 'express'
 import createErr from 'http-errors'
+import { createConnection } from 'typeorm';
 
 import routers from '../routers'
 
-export { default as handleErr } from './handleErr';
+export { default as errHandler } from './errHandler';
 
-export const dbConnect = () => {
-
+export const connectDB = async () => {
+    return await createConnection({
+        type: 'postgres',
+        url: process.env.DATABASE_URL,
+        entities: [
+            __dirname + "/../entity/*.js"
+        ],
+        migrations: [
+            __dirname + "/../migration/*.js"
+        ],
+        synchronize: process.env.NODE_ENV === 'development',
+        logging: process.env.NODE_ENV === 'development',
+        ssl: {
+            rejectUnauthorized: false
+        },
+        cli: {
+            entitiesDir: __dirname + "/../entity",
+            migrationsDir: __dirname + "/../migration"
+        }
+    })
 }
 
 export const setup = (app: Application) => {
     app.use(express.json());
-    app.use((req:Request, res: Response, next: NextFunction) => { // make "/path" and "/path/" to be the same
+    app.use((req: Request, res: Response, next: NextFunction) => { // make "/path" and "/path/" to be the same
         const test = /\?[^]*\//.test(req.url);
         if (req.url.substr(-1) === "/" && req.url.length > 1 && !test)
             res.redirect(301, req.url.slice(0, -1));

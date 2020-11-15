@@ -1,13 +1,15 @@
 import { config } from "dotenv"
 import express from "express"
 import { resolve } from "path"
-import {dbConnect, setup, initRoutes, handleErr , start } from './app'
+import { setup, initRoutes, errHandler, start, connectDB } from './app'
 
-config({path: resolve(__dirname, '../.env')})
-const app = express()
+config({ path: resolve(__dirname, '../.env') })
 
-dbConnect()
-setup(app)
-initRoutes(app)
-handleErr(app)
-start(app)
+connectDB().then(() => {
+    const app = express()
+    setup(app)
+    initRoutes(app)
+    errHandler(app)
+    start(app)
+})
+.catch(err => console.log('Cannot connect to DB --> ', err))
