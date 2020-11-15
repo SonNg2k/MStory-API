@@ -20,7 +20,7 @@ export default class User {
     @Column({ type: "varchar", length: 39 })
     username: string;
 
-    @Column({ type: "varchar", length: 1024, nullable: true })
+    @Column({ type: "varchar", length: 1024, nullable: true, select: false })
     password: string;
 
     @CreateDateColumn({ type: "timestamp" })
