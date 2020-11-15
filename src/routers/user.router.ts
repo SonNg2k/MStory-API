@@ -1,10 +1,10 @@
 import express from 'express'
+import { addUser, fetchUsers } from '../controllers/user.controller';
 
 const router = express.Router();
 
-router.get('/')
-router.post('/')
-router.put('')
-router.delete('')
+router.route("/")
+.get(fetchUsers)
+.post(addUser)
 
 export default router

@@ -1,22 +1,18 @@
 import { NextFunction, Request, Response } from "express";
+import { getRepository } from "typeorm";
+import _ from "lodash";
+import User from "../entity/User";
 
+const userRepo = () => getRepository(User)
 
-export const getUser = (req: Request, res:Response) => {
-
+export const fetchUsers = async (req: Request, res: Response) => {
+    const [users, total_count] = await userRepo().findAndCount()
+    res.status(200).json({ total_count, users })
 }
 
-export const addUser = (req: Request, res: Response) => {
-
-}
-
-export const editUser = (req: Request, res: Response) => {
-
-}
-
-export const deleteUser = (req: Request, res: Response) => {
-
-}
-
-interface controller {
-    (req: Request, res: Response, next?: NextFunction): void
+export const addUser = async (req: Request, res: Response) => {
+    const { user } = req.body
+    const newUser = await userRepo().create(user)
+    const result = await userRepo().save(newUser)
+    res.status(201).json(_.omit(result, ['password']))
 }
