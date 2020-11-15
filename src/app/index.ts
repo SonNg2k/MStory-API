@@ -17,7 +17,7 @@ export const connectDB = async () => {
             __dirname + "/../migration/*.js"
         ],
         synchronize: process.env.NODE_ENV === 'development',
-        logging: process.env.NODE_ENV === 'development',
+        logging: process.env.DB_LOGGING === 'true',
         ssl: {
             rejectUnauthorized: false
         },
