@@ -37,6 +37,15 @@ export const setup = (app: Application) => {
         else next();
     });
     app.disable('x-powered-by'); // NOT reveal the technology of server (Express.js) to hackers
+    app.use((req: Request, res: Response, next: NextFunction) => {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header(
+            "Access-Control-Allow-Headers",
+            "Origin, X-Requested-With, Content-Type, Accept"
+        );
+        res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
+        next();
+    })
 }
 
 export const initRoutes = (app: Application) => {
