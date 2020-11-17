@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import _ from "lodash";
 import { getRepository, ILike } from "typeorm";
-import User from "../entity/User";
+import User from "../../entity/User";
 
 const userRepo = () => getRepository(User)
 

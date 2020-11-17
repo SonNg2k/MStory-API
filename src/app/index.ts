@@ -2,7 +2,7 @@ import express, { Response, Request, NextFunction, Application } from 'express'
 import createErr from 'http-errors'
 import { createConnection } from 'typeorm';
 
-import routers from '../routers'
+import routes from '../routes'
 
 export { default as errHandler } from './errHandler';
 
@@ -49,7 +49,7 @@ export const setup = (app: Application) => {
 }
 
 export const initRoutes = (app: Application) => {
-    app.use("/", routers);
+    app.use("/", routes);
     app.all("*", (req: Request, _res: Response, next: NextFunction) => {
         next(new createErr.NotFound(`Page not found. ${req.ip} tried to reach ${req.originalUrl}`))
     })
