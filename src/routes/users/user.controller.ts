@@ -8,7 +8,8 @@ const userRepo = () => getRepository(User)
 export const fetchUsers = async (req: Request, res: Response) => {
     let { keyword, role, page } = req.query
     const whereClause = (keyword) ? { fullname: ILike(`%${keyword}%`) } : undefined;
-    const skip: number = (<number><unknown>page - 1) * 6
+    // @ts-ignore
+    const skip: number = (page - 1) * 6
 
     const [users, total_count] = await userRepo().findAndCount({
         where: whereClause,
