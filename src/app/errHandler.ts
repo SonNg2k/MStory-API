@@ -1,9 +1,8 @@
 import { Application, NextFunction, Request, Response } from 'express';
 import createErr from 'http-errors'
 
-export default function(app: Application) {
+export default function (app: Application) {
     process.on("unhandledRejection", (reason: Error | any) => {
-        //reason is usually the Error object
         console.log("Unhandled Rejection -->", reason.stack || reason)
         /* Recommended: send the information to sentry.io
         or whatever crash reporting service you use */
@@ -22,9 +21,16 @@ const logErrors = (err: Error | any, _req: Request, _res: Response, next: NextFu
     next(err)
 }
 
+// Suppose to take in a raw server error and return a beautiful error message to the client
 const returnErrToClient = (err: Error | any, _req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) return next(err);
-    if (!err.statusCode) err =  new createErr.InternalServerError('Unknown error, sorry')
+    const { detail } = err
+    if (err.code === "23505" && err.name === "QueryFailedError") err = createErr(409, {
+        code: "UNIQUE_VIOLATION",
+        message: "Resource has already existed",
+        detail: detail
+    })
+    if (!err.statusCode) err = new createErr.InternalServerError('Unknown error, sorry')
     // All errors are http errors with status code and message
     const { statusCode } = err
     res.status(statusCode).json(err)
