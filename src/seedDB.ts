@@ -1,4 +1,4 @@
-import faker from 'faker'
+import faker from 'faker';
 import { getRepository } from "typeorm";
 import User from "./entity/User";
 
@@ -16,5 +16,6 @@ const seedUser = async (totalCount: number) => {
 }
 
 export default () => {
-    seedUser(18)
+    //@ts-ignore
+    seedUser(parseInt(process.env.USERS_TO_SEED))
 }
