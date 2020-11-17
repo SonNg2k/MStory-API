@@ -7,17 +7,23 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
     const { error, value } = querySchema.validate(req.query, { convert: false, allowUnknown: true })
     if (error) {
         const returnErr = {
-            code: "INVALID_QUERY_PARAM",
+            errcode: "INVALID_QUERY_STRING",
             message: "Invalid query params",
             detail: _.chain(error.details)
-            .keyBy("context.key")
-            .mapValues('context.value')
-            .value()
+                .keyBy("context.key")
+                .mapValues('context.value')
+                .value()
         }
         return next(createError(400, returnErr))
     }
     value.page = +value.page // cast 'page' to integer
     req.query = value
+    next()
+}
+
+export const validateAddUser = (req: Request, res: Response, next: NextFunction) => {
+    const { error } = addUserSchema.validate(req.body)
+    if (error) return next(new createError.UnprocessableEntity("Invalid payload to add user"))
     next()
 }
 
@@ -32,4 +38,30 @@ const querySchema = Joi.object({
         .empty('')
         .default('1') // set default value for page if it is undefined
         .regex(/^[0-9]+$/) // contain digits only
+})
+
+const addUserSchema = Joi.object({
+    username: Joi.string()
+        .min(6)
+        .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) // based on GitHub username's constraints
+        .required(),
+
+    fullname: Joi.string()
+        .min(6)
+        .max(50)
+        .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
+        .required(),
+
+    email: Joi.string()
+        .min(6)
+        .max(64)
+        .regex(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
+        .required(),
+
+    password: Joi.string()
+        .min(6)
+        .max(255)
+        .required(),
+
+    confirm_password: Joi.string().required().valid(Joi.ref('password'))
 })
