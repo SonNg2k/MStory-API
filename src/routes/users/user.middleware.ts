@@ -8,7 +8,7 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
     if (error) {
         const returnErr = {
             code: "INVALID_QUERY_PARAM",
-            mess: "Invalid query params",
+            message: "Invalid query params",
             detail: _.chain(error.details)
             .keyBy("context.key")
             .mapValues('context.value')
