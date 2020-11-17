@@ -2,7 +2,7 @@ import { Application, NextFunction, Request, Response } from 'express';
 import createErr from 'http-errors'
 
 export default function(app: Application) {
-    process.on("unhandledRejection", (reason: any, _promise: any) => {
+    process.on("unhandledRejection", (reason: any) => {
         //reason is usually the Error object
         console.log("Unhandled Rejection -->", reason.stack || reason)
         /* Recommended: send the information to sentry.io
