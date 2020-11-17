@@ -9,7 +9,7 @@ export default function(app: Application) {
         or whatever crash reporting service you use */
     })
     app.use(logErrors);
-    app.use(errorHandler);
+    app.use(returnErrToClient);
 }
 
 // const pe = new PrettyError();
@@ -22,7 +22,7 @@ const logErrors = (err: any, _req: Request, _res: Response, next: NextFunction) 
     next(err)
 }
 
-const errorHandler = (err: any, _req: Request, res: Response, next: NextFunction) => {
+const returnErrToClient = (err: any, _req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) return next(err);
     if (!err.statusCode) err =  new createErr.InternalServerError('Unknown error, sorry')
     // All errors are http errors with status code and message
