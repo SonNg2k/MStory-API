@@ -26,6 +26,6 @@ const errorHandler = (err: any, _req: Request, res: Response, next: NextFunction
     if (res.headersSent) return next(err);
     if (!err.statusCode) err =  new createErr.InternalServerError('Unknown error, sorry')
     // All errors are http errors with status code and message
-    let { statusCode, message } = err
-    res.status(statusCode).json(message)
+    const { statusCode } = err
+    res.status(statusCode).json(err)
 }
