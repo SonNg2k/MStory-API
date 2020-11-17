@@ -1,10 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import createHttpError from "http-errors";
+import createError from "http-errors";
 import Joi from "joi";
+import _ from "lodash"
 
 export const parseQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { convert: false, allowUnknown: true })
-    if (error) return next(new createHttpError.BadRequest('Invalid query params'))
+    if (error) {
+        const returnErr = {
+            code: "INVALID_QUERY_PARAM",
+            mess: "Invalid query params",
+            detail: _.chain(error.details)
+            .keyBy("context.key")
+            .mapValues('context.value')
+            .value()
+        }
+        return next(createError(400, returnErr))
+    }
     value.page = +value.page // cast 'page' to integer
     req.query = value
     next()
