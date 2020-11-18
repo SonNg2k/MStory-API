@@ -39,6 +39,7 @@
     "joi": "^17.3.0",
     "lodash": "^4.17.20",
     "pg": "^8.5.0",
+    "pretty-error": "^2.1.2",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.29",
     "ulid": "^2.3.0"
