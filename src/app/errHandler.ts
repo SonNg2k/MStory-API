@@ -1,9 +1,15 @@
 import { Application, NextFunction, Request, Response } from 'express';
 import createErr from 'http-errors'
+import PrettyError from 'pretty-error'
+
+const pe = new PrettyError()
+pe.skipNodeFiles();
+pe.skipPackage('express');
 
 export default function (app: Application) {
     process.on("unhandledRejection", (reason: Error | any) => {
-        console.log("Unhandled Rejection -->", reason.stack || reason)
+        console.log("Unhandled Rejection ↓")
+        console.log(pe.render(reason))
         /* Recommended: send the information to sentry.io
         or whatever crash reporting service you use */
     })
@@ -11,13 +17,8 @@ export default function (app: Application) {
     app.use(returnErrToClient);
 }
 
-// const pe = new PrettyError();
-// pe.skipNodeFiles();
-// pe.skipPackage('express');
-
 const logErrors = (err: Error | any, _req: Request, _res: Response, next: NextFunction) => {
-    // console.log(pe.render(err));
-    console.dir(err, { depth: null });
+    console.log(pe.render(err));
     next(err)
 }
 
