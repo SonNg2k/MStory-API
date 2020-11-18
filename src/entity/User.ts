@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { ulid } from 'ulid';
 
 @Entity({ name: "users" })
@@ -28,7 +28,8 @@ export default class User {
     last_login: Date
 
     @BeforeInsert()
-    private beforeInsert() {
+    @BeforeUpdate()
+    private beforeUpsert() {
         this.user_id = ulid()
         this.email = this.email.toLowerCase()
         this.username = this.username.toLowerCase()
