@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import Joi from "joi";
-import _ from "lodash"
+import _ from "lodash";
 
 export const parseQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { convert: false, allowUnknown: true })
@@ -24,6 +24,12 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
 export const validateAddUser = (req: Request, res: Response, next: NextFunction) => {
     const { error } = addUserSchema.validate(req.body, { allowUnknown: true })
     if (error) return next(new createError.UnprocessableEntity("Invalid payload to add user"))
+    next()
+}
+
+export const validateEditUser = (req: Request, res: Response, next: NextFunction) => {
+    const { error } = editUserChema.validate(req.body, { allowUnknown: true })
+    if (error) return next(error)
     next()
 }
 
@@ -62,4 +68,22 @@ const addUserSchema = Joi.object({
         .min(6)
         .max(255)
         .required()
+})
+
+const editUserChema = Joi.object({
+    fullname: Joi.string()
+        .min(6)
+        .max(50)
+        .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
+        .required(),
+
+    email: Joi.string()
+        .min(6)
+        .max(64)
+        .regex(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
+        .required(),
+
+    password: Joi.string()
+        .min(6)
+        .max(255)
 })

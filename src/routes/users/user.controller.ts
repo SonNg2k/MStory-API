@@ -27,3 +27,14 @@ export const addUser = async (req: Request, res: Response) => {
     const result = await userRepo().save(newUser)
     res.status(201).json(_.omit(result, ['password']))
 }
+
+export const editUser = async (req: Request, res: Response) => {
+    let { username } = req.params
+    username = username.toLowerCase()
+    const userToEdit = await userRepo().findOne({ username })
+
+    if (!userToEdit) return Promise.reject("No user with the given username")
+    userRepo().merge(userToEdit, req.body)
+    const result = await userRepo().save(userToEdit)
+    res.status(200).json(_.omit(result, ['password']))
+}
