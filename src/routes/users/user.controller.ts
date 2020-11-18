@@ -29,13 +29,25 @@ export const addUser = async (req: Request, res: Response) => {
 }
 
 export const editUser = async (req: Request, res: Response) => {
-    let { username } = req.params
-    username = username.toLowerCase()
-    const userToEdit = await userRepo().findOne({ username })
-    if (!userToEdit) return Promise.reject("No user with the given username")
+    const userToEdit = await findUserByUsername(req.params.username)
 
     const { email, fullname, password } = req.body
     userRepo().merge(userToEdit, { email, fullname, password })
     const result = await userRepo().save(userToEdit)
     res.status(200).json(_.omit(result, ['password']))
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+    const userToRemove = await findUserByUsername(req.params.username)
+
+    await userRepo().remove(userToRemove)
+    // Status code 204 will remove the json message, so don't use it
+    res.status(200).json({ message: `${userToRemove.fullname} has been deleted successfully` })
+}
+
+const findUserByUsername = async (username: string) => {
+    username = username.toLowerCase()
+    const foundUser = await userRepo().findOne({ username })
+    if (!foundUser) return Promise.reject("No user with the given username")
+    return foundUser
 }

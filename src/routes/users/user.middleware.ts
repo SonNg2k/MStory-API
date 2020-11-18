@@ -33,6 +33,16 @@ export const validateEditUser = (req: Request, res: Response, next: NextFunction
     next()
 }
 
+export const validateDeleteUser = (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.string()
+        .min(6)
+        .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
+        .required()
+    const { error } = schema.validate(req.params.username)
+    if (error) return next(error)
+    next()
+}
+
 // Define schema for req.query
 const querySchema = Joi.object({
     keyword: Joi.string()

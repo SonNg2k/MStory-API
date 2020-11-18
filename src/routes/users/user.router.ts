@@ -1,7 +1,7 @@
 import express from 'express'
 import { asyncHandler } from '../../helper';
-import { addUser, editUser, fetchUsers } from './user.controller';
-import { parseQueryParams, validateAddUser, validateEditUser } from './user.middleware';
+import { addUser, deleteUser, editUser, fetchUsers } from './user.controller';
+import { parseQueryParams, validateAddUser, validateDeleteUser, validateEditUser } from './user.middleware';
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.route("/")
 
 router.route("/:username")
     .put(validateEditUser, asyncHandler(editUser))
+    .delete(validateDeleteUser, asyncHandler(deleteUser))
 
 export default router
