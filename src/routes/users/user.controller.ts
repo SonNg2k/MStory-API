@@ -32,9 +32,10 @@ export const editUser = async (req: Request, res: Response) => {
     let { username } = req.params
     username = username.toLowerCase()
     const userToEdit = await userRepo().findOne({ username })
-
     if (!userToEdit) return Promise.reject("No user with the given username")
-    userRepo().merge(userToEdit, req.body)
+
+    const { email, fullname, password } = req.body
+    userRepo().merge(userToEdit, { email, fullname, password })
     const result = await userRepo().save(userToEdit)
     res.status(200).json(_.omit(result, ['password']))
 }
