@@ -22,7 +22,7 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
 }
 
 export const validateAddUser = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = addUserSchema.validate(req.body)
+    const { error } = addUserSchema.validate(req.body, { allowUnknown: true })
     if (error) return next(new createError.UnprocessableEntity("Invalid payload to add user"))
     next()
 }
@@ -61,7 +61,5 @@ const addUserSchema = Joi.object({
     password: Joi.string()
         .min(6)
         .max(255)
-        .required(),
-
-    confirm_password: Joi.string().required().valid(Joi.ref('password'))
+        .required()
 })
