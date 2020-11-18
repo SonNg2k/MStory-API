@@ -28,10 +28,14 @@ export default class User {
     last_login: Date
 
     @BeforeInsert()
-    @BeforeUpdate()
-    private beforeUpsert() {
+    private beforeInsert() {
         this.user_id = ulid()
         this.email = this.email.toLowerCase()
         this.username = this.username.toLowerCase()
+    }
+
+    @BeforeUpdate()
+    private lowerCaseEmail() {
+        this.email = this.email.toLowerCase()
     }
 }
