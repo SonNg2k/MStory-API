@@ -9,7 +9,7 @@ const seedUser = async (totalCount: number) => {
         const newUser = await userRepo().create({
             email: faker.internet.email(),
             fullname: faker.name.findName(),
-            username: faker.internet.userName()
+            username: faker.internet.userName().replace(/[^A-Za-z0-9]/g, '')
         })
         await userRepo().save(newUser)
     }
