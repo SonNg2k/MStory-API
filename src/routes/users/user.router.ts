@@ -1,5 +1,5 @@
 import express from 'express'
-import { asyncHandler } from '../../helper';
+import { asyncHandler } from '../../helpers';
 import { addUser, deleteUser, editUser, fetchUsers } from './user.controller';
 import { parseQueryParams, validateAddUser, validateDeleteUser, validateEditUser } from './user.middleware';
 
