@@ -1,10 +1,10 @@
 import faker from 'faker';
 import { getRepository } from "typeorm";
+import Project from './entity/Project';
 import User from "./entity/User";
 
 const userRepo = () => getRepository(User)
-
-const seedUser = async (totalCount: number) => {
+const seedUsers = async (totalCount: number) => {
     for (let count = 0; count < totalCount; count++) {
         const newUser = await userRepo().create({
             email: faker.internet.email(),
@@ -15,7 +15,20 @@ const seedUser = async (totalCount: number) => {
     }
 }
 
+const projectRepo = () => getRepository(Project)
+const seedProjects = async (totalCount: number) => {
+    for (let count = 0; count < totalCount; count++) {
+        const newProject = await projectRepo().create({
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription()
+        })
+        await projectRepo().save(newProject)
+    }
+}
+
 export default () => {
     //@ts-ignore
-    seedUser(parseInt(process.env.USERS_TO_SEED))
+    seedUsers(parseInt(process.env.USERS_TO_SEED))
+    //@ts-ignore
+    seedProjects(parseInt(process.env.PROJECTS_TO_SEED))
 }
