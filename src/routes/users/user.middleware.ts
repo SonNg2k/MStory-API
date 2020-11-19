@@ -4,7 +4,7 @@ import Joi from "joi";
 import _ from "lodash";
 
 export const parseQueryParams = (req: Request, res: Response, next: NextFunction) => {
-    const { error, value } = querySchema.validate(req.query, { convert: false, allowUnknown: true })
+    const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
     if (error) {
         const returnErr = {
             errcode: "INVALID_QUERY_STRING",
