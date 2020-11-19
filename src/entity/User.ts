@@ -1,5 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { type } from "os";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { ulid } from 'ulid';
+import Project from "./Project";
 
 @Entity({ name: "users" })
 export default class User {
@@ -26,6 +28,10 @@ export default class User {
 
     @Column({ type: 'timestamp', nullable: true })
     last_login: Date
+
+    // Projects created by this user...
+    @OneToMany(type => Project, project => project.creator)
+    projects_created: Promise<Project[]>
 
     @BeforeInsert()
     private beforeInsert() {
