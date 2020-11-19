@@ -20,7 +20,9 @@ const seedProjects = async (totalCount: number) => {
     for (let count = 0; count < totalCount; count++) {
         const newProject = await projectRepo().create({
             name: faker.commerce.productName(),
-            description: faker.commerce.productDescription()
+            description: faker.commerce.productDescription(),
+            is_public: Math.random() <= 0.5,
+            is_active: Math.random() <= 0.5
         })
         await projectRepo().save(newProject)
     }
