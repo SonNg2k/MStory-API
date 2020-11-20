@@ -18,14 +18,21 @@ const seedUsers = async (totalCount: number) => {
 const projectRepo = () => getRepository(Project)
 const seedProjects = async (totalCount: number) => {
     for (let count = 0; count < totalCount; count++) {
+        const fakeCreatedAt = randomDate(new Date(2017, 0, 1), new Date())
         const newProject = await projectRepo().create({
             name: faker.commerce.productName(),
             description: faker.commerce.productDescription(),
             is_public: Math.random() <= 0.5,
-            is_active: Math.random() <= 0.5
+            is_active: Math.random() <= 0.5,
+            created_at: fakeCreatedAt,
+            updated_at: randomDate(fakeCreatedAt, new Date())
         })
         await projectRepo().save(newProject)
     }
+}
+
+function randomDate(start: Date, end: Date) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
 
 export default () => {
