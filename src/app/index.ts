@@ -1,4 +1,5 @@
 import express, { Response, Request, NextFunction, Application } from 'express'
+import cors from 'cors'
 import createErr from 'http-errors'
 import { createConnection } from 'typeorm';
 
@@ -29,6 +30,7 @@ export const connectDB = async () => {
 }
 
 export const setup = (app: Application) => {
+    app.use(cors())
     app.use(express.json());
     app.use((req: Request, res: Response, next: NextFunction) => { // make "/path" and "/path/" to be the same
         const test = /\?[^]*\//.test(req.url);
@@ -37,15 +39,6 @@ export const setup = (app: Application) => {
         else next();
     });
     app.disable('x-powered-by'); // NOT reveal the technology of server (Express.js) to hackers
-    app.use((req: Request, res: Response, next: NextFunction) => {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header(
-            "Access-Control-Allow-Headers",
-            "Origin, X-Requested-With, Content-Type, Accept"
-        );
-        res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
-        next();
-    })
 }
 
 export const initRoutes = (app: Application) => {
