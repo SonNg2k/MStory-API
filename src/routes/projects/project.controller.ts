@@ -14,7 +14,7 @@ export const fetchProjects = async (req: Request, res: Response) => {
     const [projects, total_count] = await projectRepo().findAndCount({
         where: whereClause,
         // @ts-ignore
-        order: { [view]: order },
+        order: { [view]: order.toUpperCase() },
         skip: skip,
         take: 6
     })
