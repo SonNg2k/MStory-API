@@ -1,10 +1,10 @@
-import { type } from "os";
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { ulid } from 'ulid';
 import Project from "./Project";
+import TrackingDate from "./TrackingDate";
 
 @Entity({ name: "users" })
-export default class User {
+export default class User extends TrackingDate {
     @PrimaryColumn({ type: "char", length: 26 })
     user_id: string;
 
@@ -19,12 +19,6 @@ export default class User {
 
     @Column({ type: "varchar", length: 1024, nullable: true, select: false })
     password: string;
-
-    @CreateDateColumn({ type: "timestamp" })
-    created_at: Date;
-
-    @UpdateDateColumn({ type: "timestamp" })
-    updated_at: Date;
 
     @Column({ type: 'timestamp', nullable: true })
     last_login: Date
