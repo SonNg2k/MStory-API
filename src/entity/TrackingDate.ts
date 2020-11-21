@@ -1,9 +1,8 @@
 import { CreateDateColumn, UpdateDateColumn } from "typeorm";
-
 export default abstract class TrackingDate {
-    @CreateDateColumn({ type: "timestamp", update: false })
+    @CreateDateColumn({ type: "timestamptz", update: false })
     created_at: Date;
 
-    @UpdateDateColumn({ type: "timestamp" })
+    @UpdateDateColumn({ type: "timestamptz" })
     updated_at: Date;
 }
