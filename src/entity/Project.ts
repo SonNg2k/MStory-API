@@ -1,6 +1,5 @@
-import { Column, Entity, PrimaryColumn, BeforeInsert, ManyToOne } from "typeorm";
+import { Column, Entity, PrimaryColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert, ManyToOne, JoinColumn } from "typeorm";
 import { ulid } from "ulid";
-import DateTrackingCols from "./DateTrackingCols";
 import User from "./User";
 
 @Entity({ name: 'projects' })
@@ -20,8 +19,11 @@ export default class Project {
     @Column({ default: true })
     is_active: boolean
 
-    @Column(type => DateTrackingCols, { prefix: false })
-    __date_tracking_cols: DateTrackingCols
+    @CreateDateColumn({ type: "timestamp" })
+    created_at: Date;
+
+    @UpdateDateColumn({ type: "timestamp" })
+    updated_at: Date;
 
     @ManyToOne(type => User, user => user.projects_created)
     creator: Promise<User>
