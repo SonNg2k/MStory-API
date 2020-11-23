@@ -22,8 +22,7 @@ export const fetchUsers = async (req: Request, res: Response) => {
 
 export const addUser = async (req: Request, res: Response) => {
     const { username, fullname, email, password } = req.body
-    const user = { username, fullname, email, password }
-    const newUser = await userRepo().create(user)
+    const newUser = await userRepo().create({ username, fullname, email, password })
     const result = await userRepo().save(newUser)
     res.status(201).json(_.omit(result, ['password']))
 }
