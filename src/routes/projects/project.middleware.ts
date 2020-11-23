@@ -10,8 +10,8 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
     next()
 }
 
-export const validateAddProject = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = addProjectSchema.validate(req.body, { convert: false, allowUnknown: true })
+export const validateUpsertProject = (req: Request, res: Response, next: NextFunction) => {
+    const { error } = projectSchema.validate(req.body, { convert: false, allowUnknown: true })
     if (error) return next(error)
     next()
 }
@@ -34,7 +34,7 @@ const querySchema = Joi.object({
         .regex(/^[0-9]+$/) // contain digits only
 })
 
-const addProjectSchema = Joi.object({
+const projectSchema = Joi.object({
     name: Joi.string()
         .trim()
         .min(6)
