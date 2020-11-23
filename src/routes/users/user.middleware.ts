@@ -27,18 +27,21 @@ export const validateAddUser = (req: Request, res: Response, next: NextFunction)
     next()
 }
 
+const usernameSchema = Joi.string()
+    .min(6)
+    .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
+    .required()
+
 export const validateEditUser = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = editUserChema.validate(req.body, { allowUnknown: true })
-    if (error) return next(error)
+    const { error: usernameErr } = usernameSchema.validate(req.params.username)
+    if (usernameErr) return next(usernameErr)
+    const { error: editPayloadErr } = editUserChema.validate(req.body, { allowUnknown: true })
+    if (editPayloadErr) return next(editPayloadErr)
     next()
 }
 
 export const validateDeleteUser = (req: Request, res: Response, next: NextFunction) => {
-    const schema = Joi.string()
-        .min(6)
-        .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
-        .required()
-    const { error } = schema.validate(req.params.username)
+    const { error } = usernameSchema.validate(req.params.username)
     if (error) return next(error)
     next()
 }
