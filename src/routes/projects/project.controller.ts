@@ -4,6 +4,12 @@ import Project from "../../entity/Project";
 
 const projectRepo = () => getRepository(Project)
 
+export const fetchSpecificProject = async (req: Request, res: Response) => {
+    const project = await projectRepo().findOne(req.params.projectID)
+    if (!project) return Promise.reject("No project with the given ID is found")
+    res.status(200).json(project)
+}
+
 export const fetchProjects = async (req: Request, res: Response) => {
     const { keyword, is_active, view, order, page } = req.query
     let whereClause = { is_active }
@@ -12,6 +18,7 @@ export const fetchProjects = async (req: Request, res: Response) => {
     // @ts-ignore
     const skip: number = (page - 1) * 6
     const [projects, total_count] = await projectRepo().findAndCount({
+        select: ["name", "description", "updated_at"],
         where: whereClause,
         // @ts-ignore
         order: { [view]: order.toUpperCase() },
