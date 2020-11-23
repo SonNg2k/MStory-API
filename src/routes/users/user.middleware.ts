@@ -27,13 +27,8 @@ export const validateAddUser = (req: Request, res: Response, next: NextFunction)
     next()
 }
 
-const usernameSchema = Joi.string()
-    .min(6)
-    .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
-    .required()
-
 export const validateEditUser = (req: Request, res: Response, next: NextFunction) => {
-    const { error: usernameErr } = usernameSchema.validate(req.params.username)
+    const { error: usernameErr } = username.validate(req.params.username)
     if (usernameErr) return next(usernameErr)
     const { error: editPayloadErr } = editUserChema.validate(req.body, { allowUnknown: true })
     if (editPayloadErr) return next(editPayloadErr)
@@ -41,12 +36,12 @@ export const validateEditUser = (req: Request, res: Response, next: NextFunction
 }
 
 export const validateDeleteUser = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = usernameSchema.validate(req.params.username)
+    const { error } = username.validate(req.params.username)
     if (error) return next(error)
     next()
 }
 
-// Define schema for req.query
+// Joi validation schemas
 const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be empty
@@ -59,23 +54,27 @@ const querySchema = Joi.object({
         .regex(/^[0-9]+$/) // contain digits only
 })
 
+const username = Joi.string()
+    .min(6)
+    .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
+    .required() // based on GitHub username's constraints
+
+const fullname = Joi.string()
+    .min(6)
+    .max(50)
+    .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
+    .required()
+
+const email = Joi.string()
+    .min(6)
+    .max(64)
+    .regex(/^(([^<>()\[\]\\.,;:\s-@#$!%^&*+=_/`?{}|'"]+(\.[^<>()\[\]\\.,;:\s-@_!#$%^&*()=+/`?{}|'"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i)
+    .required()
+
 const addUserSchema = Joi.object({
-    username: Joi.string()
-        .min(6)
-        .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) // based on GitHub username's constraints
-        .required(),
-
-    fullname: Joi.string()
-        .min(6)
-        .max(50)
-        .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
-        .required(),
-
-    email: Joi.string()
-        .min(6)
-        .max(64)
-        .regex(/^(([^<>()\[\]\\.,;:\s-@#$!%^&*+=_/`?{}|'"]+(\.[^<>()\[\]\\.,;:\s-@_!#$%^&*()=+/`?{}|'"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i)
-        .required(),
+    username,
+    fullname,
+    email,
 
     password: Joi.string()
         .min(6)
@@ -84,17 +83,8 @@ const addUserSchema = Joi.object({
 })
 
 const editUserChema = Joi.object({
-    fullname: Joi.string()
-        .min(6)
-        .max(50)
-        .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
-        .required(),
-
-    email: Joi.string()
-        .min(6)
-        .max(64)
-        .regex(/^(([^<>()\[\]\\.,;:\s-@#$!%^&*+=_/`?{}|'"]+(\.[^<>()\[\]\\.,;:\s-@_!#$%^&*()=+/`?{}|'"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i)
-        .required(),
+    fullname,
+    email,
 
     password: Joi.string()
         .min(6)
