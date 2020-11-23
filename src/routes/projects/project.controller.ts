@@ -5,8 +5,7 @@ import Project from "../../entity/Project";
 const projectRepo = () => getRepository(Project)
 
 export const fetchSpecificProject = async (req: Request, res: Response) => {
-    const project = await projectRepo().findOne(req.params.projectID)
-    if (!project) return Promise.reject("No project with the given ID is found")
+    const project = await findProjectByID(req.params.projectID)
     res.status(200).json(project)
 }
 
@@ -33,4 +32,16 @@ export const addProject = async (req: Request, res: Response) => {
     const newProject = await projectRepo().create({ name, description, is_public })
     const result = await projectRepo().save(newProject)
     res.status(200).json(result)
+}
+
+export const deleteProject = async (req: Request, res: Response) => {
+    const projectToRemove = await findProjectByID(req.params.projectID)
+    await projectRepo().remove(projectToRemove)
+    res.status(200).json({ message: `${projectToRemove.name} has been deleted successfully` })
+}
+
+const findProjectByID = async (projectID: string) => {
+    const project = await projectRepo().findOne(projectID)
+    if (!project) return Promise.reject("No project with the given ID is found")
+    return project
 }
