@@ -10,6 +10,12 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
     next()
 }
 
+export const validateAddProject = (req: Request, res: Response, next: NextFunction) => {
+    const { error } = addProjectSchema.validate(req.body, { convert: false, allowUnknown: true })
+    if (error) return next(error)
+    next()
+}
+
 const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be undefined
@@ -26,4 +32,19 @@ const querySchema = Joi.object({
         .empty('')
         .default('1') // set default value for page if it is undefined
         .regex(/^[0-9]+$/) // contain digits only
+})
+
+const addProjectSchema = Joi.object({
+    name: Joi.string()
+        .trim()
+        .min(6)
+        .max(80)
+        .required(),
+
+    description: Joi.string()
+        .allow('') // can be undefined
+        .max(5000)
+        .required(),
+
+    is_public: Joi.string().valid("true", "false").required()
 })

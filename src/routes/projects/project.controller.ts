@@ -20,3 +20,10 @@ export const fetchProjects = async (req: Request, res: Response) => {
     })
     res.status(200).json({ total_count, projects })
 }
+
+export const addProject = async (req: Request, res: Response) => {
+    const { name, description, is_public } = req.body
+    const newProject = await projectRepo().create({ name, description, is_public })
+    const result = await projectRepo().save(newProject)
+    res.status(200).json(result)
+}
