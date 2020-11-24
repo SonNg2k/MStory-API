@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
 
 export const parseQueryParams = (req: Request, res: Response, next: NextFunction) => {
-    const { error, value } = querySchema.validate(req.query, { convert: false, allowUnknown: true })
+    const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
     if (error) return next(error)
     value.page = +value.page
     value.is_active = (value.is_active === 'true')
@@ -11,15 +11,16 @@ export const parseQueryParams = (req: Request, res: Response, next: NextFunction
 }
 
 export const validateUpsertProject = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = projectSchema.validate(req.body, { convert: false, allowUnknown: true })
+    const { error, value } = projectSchema.validate(req.body)
     if (error) return next(error)
+    req.body = value
     next()
 }
 
 const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be undefined
-        .trim() // no leading and traling space
+        .trim() // remove leading and traling space
         .max(80),
 
     is_active: Joi.string().valid("true", "false").required(),
@@ -46,5 +47,5 @@ const projectSchema = Joi.object({
         .max(5000)
         .required(),
 
-    is_public: Joi.string().valid("true", "false").required()
+    is_public: Joi.boolean().required()
 })
