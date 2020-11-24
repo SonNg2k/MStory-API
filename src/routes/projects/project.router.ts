@@ -1,5 +1,5 @@
 import express from 'express';
-import { asyncHandler } from '../../helpers';
+import { asyncHandler, checkID } from '../../helpers';
 import { deleteProject, fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
 import { validateSetStatus, parseQueryParams, validateUpsertProject } from './project.middleware';
 
@@ -10,11 +10,11 @@ router.route("/")
     .post(validateUpsertProject, asyncHandler(upsertProject))
 
 router.route("/:projectID")
-    .get(asyncHandler(fetchSpecificProject))
-    .put(validateUpsertProject, asyncHandler(upsertProject))
-    .delete(asyncHandler(deleteProject))
+    .get(checkID('projectID'), asyncHandler(fetchSpecificProject))
+    .put(checkID('projectID'), validateUpsertProject, asyncHandler(upsertProject))
+    .delete(checkID('projectID'), asyncHandler(deleteProject))
 
 router.route("/:projectID/set_status")
-    .put(validateSetStatus, asyncHandler(updateProjectStatus))
+    .put(checkID('projectID'), validateSetStatus, asyncHandler(updateProjectStatus))
 
 export default router
