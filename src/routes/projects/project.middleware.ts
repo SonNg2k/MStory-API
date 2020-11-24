@@ -17,11 +17,9 @@ export const validateUpsertProject = (req: Request, res: Response, next: NextFun
 }
 
 export const validateSetStatus = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = setStatusSchema.validate(req.body, { convert: false })
+    const { error, value } = setStatusSchema.validate(req.body)
     if (error) return next(error)
-    const { status } = req.body
-    const is_active = (status === 'active')
-    req.body = { ...req.body, is_active }
+    req.body = value
     next()
 }
 
@@ -59,7 +57,4 @@ const projectSchema = Joi.object({
     is_public: Joi.boolean().required()
 })
 
-const setStatusSchema = Joi.object({
-    verify_project_name: name,
-    status: Joi.string().valid("active", "archived").required()
-})
+const setStatusSchema = Joi.object({ is_active: Joi.boolean().required() })

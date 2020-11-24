@@ -43,8 +43,7 @@ export const upsertProject = async (req: Request, res: Response) => {
 
 export const updateProjectStatus = async (req: Request, res: Response) => {
     const project = await findProjectByID(req.params.projectID)
-    const { verify_project_name, is_active } = req.body
-    if (project.name !== verify_project_name) return Promise.reject("Project name confirmation failed")
+    const { is_active } = req.body
     projectRepo().merge(project, { is_active })
     await projectRepo().save(project)
     res.status(204).json()
