@@ -27,10 +27,17 @@ export const fetchProjects = async (req: Request, res: Response) => {
     res.status(200).json({ total_count, projects })
 }
 
-export const addProject = async (req: Request, res: Response) => {
+export const upsertProject = async (req: Request, res: Response) => {
     const { name, description, is_public } = req.body
-    const newProject = await projectRepo().create({ name, description, is_public })
-    const result = await projectRepo().save(newProject)
+    const { projectID } = req.params
+    let project
+
+    if (projectID) { // PUT --> /projects/:projectID
+        project = await findProjectByID(projectID)
+        projectRepo().merge(project, { name, description, is_public })
+    } else // POST --> /projects
+        project = await projectRepo().create({ name, description, is_public })
+    const result = await projectRepo().save(project)
     res.status(200).json(result)
 }
 
