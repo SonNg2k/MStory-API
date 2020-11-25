@@ -26,11 +26,11 @@ export default class User extends TrackingDate {
 
     // One user creates 0-n projects
     @OneToMany(type => Project, project => project.creator)
-    projects_created: Promise<Project[]>
+    projects_created: Project[]
 
     // One user creates 0-n stories
     @OneToMany(type => Story, story => story.creator)
-    stories_created: Promise<Story[]>
+    stories_created: Story[]
 
     @BeforeInsert()
     private beforeInsert() {

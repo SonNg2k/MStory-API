@@ -28,13 +28,13 @@ export default class Story extends TrackingDate {
     @ManyToOne(type => User, user => user.stories_created)
     // The user currently tackling with a story must not be deleted
     @JoinColumn({ name: "creator_id" })
-    creator: Promise<User>
+    creator: User
 
     // A project has 0-n stories
     @ManyToOne(type => Project, project => project.stories, { onDelete: 'CASCADE' })
     // Stories associated to the deleted project are removed
     @JoinColumn({ name: "project_id" })
-    project: Promise<Project>
+    project: Project
 
     @BeforeInsert()
     private beforeInsert() {

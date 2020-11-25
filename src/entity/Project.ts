@@ -25,11 +25,11 @@ export default class Project extends TrackingDate {
     @ManyToOne(type => User, user => user.projects_created)
     // The user responsible for a project must not be deleted
     @JoinColumn({ name: "creator_id" })
-    creator: Promise<User>
+    creator: User
 
     // A project has 0-n stories
     @OneToMany(type => Story, story => story.project)
-    stories: Promise<Story[]>
+    stories: Story[]
 
     @BeforeInsert()
     private beforeInsert() {
