@@ -37,7 +37,7 @@ const seedProjects = async (totalCount: number) => {
 // 3) Seed project stories
 const storyRepo = () => getRepository(Story)
 const types = ['feature', 'bug', 'chore']
-const status = ['unstarted', 'started', 'finished', 'delivered', 'rejected', 'done']
+const status = ['unstarted', 'finished', 'delivered', 'accepted', 'rejected']
 
 const seedStories = async (totalCount: number) => {
     const projects = await projectRepo().find()
