@@ -1,5 +1,6 @@
 import express from 'express';
 import { asyncHandler, checkID } from '../../helpers';
+import { fetchProjectStories } from '../stories/story.controller';
 import { deleteProject, fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
 import { validateSetStatus, parseQueryParams, validateUpsertProject } from './project.middleware';
 
@@ -16,5 +17,8 @@ router.route("/:projectID")
 
 router.route("/:projectID/set_status")
     .put(checkID('projectID'), validateSetStatus, asyncHandler(updateProjectStatus))
+
+router.route("/:projectID/stories")
+    .get(checkID('projectID'), asyncHandler(fetchProjectStories))
 
 export default router
