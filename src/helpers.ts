@@ -4,9 +4,9 @@ import Joi from "joi";
 export const asyncHandler = (asyncFn: RequestHandler) =>
     (req: Request, res: Response, next: NextFunction) => Promise.resolve(asyncFn(req, res, next)).catch(next)
 
-export const checkID = (idName: string) =>
+export const checkID = (idUrlParam: 'projectID' | 'storyID') =>
     (req: Request, res: Response, next: NextFunction) => {
-        const { error } = Joi.string().length(26).required().validate(req.params[idName])
+        const { error } = Joi.string().length(26).required().validate(req.params[idUrlParam])
         if (error) return next(error)
         next()
     }
