@@ -1,6 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { ulid } from 'ulid';
 import Project from "./Project";
+import Story from "./Story";
 import TrackingDate from "./TrackingDate";
 
 @Entity({ name: "users" })
@@ -23,9 +24,13 @@ export default class User extends TrackingDate {
     @Column({ type: 'timestamp', nullable: true })
     last_login: Date
 
-    // Projects created by this user...
+    // One user creates 0-n projects
     @OneToMany(type => Project, project => project.creator)
     projects_created: Promise<Project[]>
+
+    // One user creates 0-n stories
+    @OneToMany(type => Story, story => story.creator)
+    stories_created: Promise<Story[]>
 
     @BeforeInsert()
     private beforeInsert() {

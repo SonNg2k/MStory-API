@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryColumn, BeforeInsert, ManyToOne } from "typeorm";
+import { Column, Entity, PrimaryColumn, BeforeInsert, ManyToOne, OneToMany, JoinColumn } from "typeorm";
 import { ulid } from "ulid";
+import Story from "./Story";
 import TrackingDate from "./TrackingDate";
 import User from "./User";
 
@@ -20,8 +21,15 @@ export default class Project extends TrackingDate {
     @Column({ default: true })
     is_active: boolean
 
+    // One user creates 0-n projects
     @ManyToOne(type => User, user => user.projects_created)
+    // The user responsible for a project must not be deleted
+    @JoinColumn({ name: "creator_id" })
     creator: Promise<User>
+
+    // A project has 0-n stories
+    @OneToMany(type => Story, story => story.project)
+    stories: Promise<Story[]>
 
     @BeforeInsert()
     private beforeInsert() {
