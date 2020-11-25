@@ -2,12 +2,12 @@ import express from 'express';
 import { asyncHandler, checkID } from '../../helpers';
 import { fetchProjectStories } from '../stories/story.controller';
 import { deleteProject, fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
-import { validateSetStatus, parseQueryParams, validateUpsertProject } from './project.middleware';
+import { validateSetStatus, parseProjectQueryParams, validateUpsertProject } from './project.middleware';
 
 const router = express.Router();
 
 router.route("/")
-    .get(parseQueryParams, asyncHandler(fetchProjects))
+    .get(parseProjectQueryParams, asyncHandler(fetchProjects))
     .post(validateUpsertProject, asyncHandler(upsertProject))
 
 router.route("/:projectID")

@@ -3,7 +3,7 @@ import createError from "http-errors";
 import Joi from "joi";
 import _ from "lodash";
 
-export const parseQueryParams = (req: Request, res: Response, next: NextFunction) => {
+export const parseUserQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
     if (error) {
         const returnErr = {

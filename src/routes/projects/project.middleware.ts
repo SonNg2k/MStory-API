@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
 
-export const parseQueryParams = (req: Request, res: Response, next: NextFunction) => {
+export const parseProjectQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
     if (error) return next(error)
     value.page = +value.page
