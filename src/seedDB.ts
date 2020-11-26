@@ -1,5 +1,6 @@
 import faker from 'faker';
 import { getRepository } from "typeorm";
+import { STORY_STATUS, STORY_TYPES } from './constants';
 import Project from './entity/Project';
 import Story from './entity/Story';
 import User from "./entity/User";
@@ -36,8 +37,6 @@ const seedProjects = async (totalCount: number) => {
 
 // 3) Seed project stories
 const storyRepo = () => getRepository(Story)
-const types = ['feature', 'bug', 'chore']
-const status = ['unstarted', 'finished', 'delivered', 'accepted', 'rejected']
 
 const seedStories = async (totalCount: number) => {
     const projects = await projectRepo().find()
@@ -45,10 +44,10 @@ const seedStories = async (totalCount: number) => {
         const projectToLink = projects[Math.floor(Math.random() * projects.length)]
         const newStory = await storyRepo().create({
             title: faker.name.title(),
-            type: types[Math.floor(Math.random() * types.length)],
+            type: STORY_TYPES[Math.floor(Math.random() * STORY_TYPES.length)],
             points: faker.random.number(3),
             description: faker.commerce.productDescription(),
-            status: status[Math.floor(Math.random() * status.length)],
+            status: STORY_STATUS[Math.floor(Math.random() * STORY_STATUS.length)],
             project: { project_id: projectToLink.project_id }
         })
         await storyRepo().save(newStory)
