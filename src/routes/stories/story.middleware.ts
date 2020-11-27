@@ -17,6 +17,12 @@ export const validateUpsertStory = async (req: Request, res: Response, next: Nex
     next()
 }
 
+export const validateSetStoryStatus = async (req: Request, res: Response, next: NextFunction) => {
+    const { error } = setStatusSchema.validate(req.body)
+    if (error) return next(error)
+    next()
+}
+
 const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be undefined
@@ -43,3 +49,5 @@ const storySchema = Joi.object({
 
     description: Joi.string().allow('').trim().max(5000).required()
 })
+
+const setStatusSchema = Joi.object({ status: Joi.string().valid(...STORY_STATUS).required() })

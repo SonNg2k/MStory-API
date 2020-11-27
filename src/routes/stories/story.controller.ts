@@ -42,6 +42,16 @@ export const upsertProjectStory = async (req: Request, res: Response) => {
     res.status(200).json(result)
 }
 
+export const setStoryStatus = async (req: Request, res: Response) => {
+    const { status } = req.body
+    const { storyID } = req.params
+
+    const story = await findStoryByID(storyID)
+    storyRepo().merge(story, { status })
+    await storyRepo().save(story)
+    res.status(204).json()
+}
+
 export const removeProjectStory = async (req: Request, res: Response) => {
     const story = await findStoryByID(req.params.storyID)
     await storyRepo().remove(story)
