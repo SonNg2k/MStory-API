@@ -42,6 +42,12 @@ export const upsertProjectStory = async (req: Request, res: Response) => {
     res.status(200).json(result)
 }
 
+export const removeProjectStory = async (req: Request, res: Response) => {
+    const story = await findStoryByID(req.params.storyID)
+    await storyRepo().remove(story)
+    res.status(200).json({ message: `${story.title} has been deleted successfully` })
+}
+
 const findStoryByID = async (storyID: string) => {
     const story = await storyRepo().findOne(storyID)
     if (!story) return Promise.reject("No story with the given ID is found")
