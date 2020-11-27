@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import Joi from "joi";
 import _ from "lodash";
+import { REGEX_DIGITS_ONLY, REGEX_EMAIL, REGEX_GITHUB_USERNAME, REGEX_LETTERS_SPACES_ONLY } from "../../constants";
 
 export const parseUserQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
@@ -45,30 +46,30 @@ export const validateDeleteUser = (req: Request, res: Response, next: NextFuncti
 const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be empty
-        .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/) // contain letters and spaces only. No consecutive spaces
+        .regex(REGEX_LETTERS_SPACES_ONLY)
         .max(50),
 
     page: Joi.string()
         .empty('')
         .default('1') // set default value for page if it is undefined
-        .regex(/^[0-9]+$/) // contain digits only
+        .regex(REGEX_DIGITS_ONLY) // contain digits only
 })
 
 const username = Joi.string()
     .min(6)
-    .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
+    .regex(REGEX_GITHUB_USERNAME)
     .required() // based on GitHub username's constraints
 
 const fullname = Joi.string()
     .min(6)
     .max(50)
-    .regex(/^([a-zA-Z]+\s)*[a-zA-Z]+$/)
+    .regex(REGEX_LETTERS_SPACES_ONLY)
     .required()
 
 const email = Joi.string()
     .min(6)
     .max(64)
-    .regex(/^(([^<>()\[\]\\.,;:\s-@#$!%^&*+=_/`?{}|'"]+(\.[^<>()\[\]\\.,;:\s-@_!#$%^&*()=+/`?{}|'"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i)
+    .regex(REGEX_EMAIL)
     .required()
 
 const addUserSchema = Joi.object({

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
+import { REGEX_DIGITS_ONLY } from "../../constants";
 
 export const parseProjectQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
@@ -38,7 +39,7 @@ const querySchema = Joi.object({
     page: Joi.string()
         .empty('')
         .default('1') // set default value for page if it is undefined
-        .regex(/^[0-9]+$/) // contain digits only
+        .regex(REGEX_DIGITS_ONLY) // contain digits only
 })
 
 const name = Joi.string()

@@ -1,12 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
-import { STORY_STATUS, STORY_TYPES } from "../../constants";
+import { REGEX_DIGITS_ONLY, STORY_STATUS, STORY_TYPES } from "../../constants";
 
 export const parseStoryQueryParams = async (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query)
     if (error) return next(error)
     value.page = +value.page
     req.query = value
+    next()
+}
+
+export const validateUpsertStory = async (req: Request, res: Response, next: NextFunction) => {
     next()
 }
 
@@ -23,5 +27,5 @@ const querySchema = Joi.object({
     page: Joi.string()
         .empty('')
         .default('1') // set default value for page if it is undefined
-        .regex(/^[0-9]+$/) // contain digits only
+        .regex(REGEX_DIGITS_ONLY) // contain digits only
 })
