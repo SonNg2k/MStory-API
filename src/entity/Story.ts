@@ -21,7 +21,7 @@ export default class Story extends TrackingDate {
     @Column({ type: "varchar", length: 5000, nullable: true })
     description: string
 
-    @Column({ type: "varchar", length: 9 })
+    @Column({ type: "varchar", length: 9, default: 'unstarted' })
     status: string
 
     // One user creates 0-n stories
