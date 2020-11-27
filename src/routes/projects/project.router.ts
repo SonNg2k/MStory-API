@@ -3,7 +3,7 @@ import { asyncHandler, checkID } from '../../helpers';
 import { fetchProjectStories, removeProjectStory, upsertProjectStory } from '../stories/story.controller';
 import { parseStoryQueryParams, validateUpsertStory } from '../stories/story.middleware';
 import { deleteProject, fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
-import { validateSetStatus, parseProjectQueryParams, validateUpsertProject } from './project.middleware';
+import { validateSetProjectStatus, parseProjectQueryParams, validateUpsertProject } from './project.middleware';
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.route("/:projectID")
     .delete(checkID('projectID'), asyncHandler(deleteProject))
 
 router.route("/:projectID/set_status")
-    .put(checkID('projectID'), validateSetStatus, asyncHandler(updateProjectStatus))
+    .put(checkID('projectID'), validateSetProjectStatus, asyncHandler(updateProjectStatus))
 
 router.route("/:projectID/stories")
     .get(checkID('projectID'), parseStoryQueryParams, asyncHandler(fetchProjectStories))

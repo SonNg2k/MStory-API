@@ -17,7 +17,7 @@ export const validateUpsertProject = (req: Request, res: Response, next: NextFun
     next()
 }
 
-export const validateSetStatus = (req: Request, res: Response, next: NextFunction) => {
+export const validateSetProjectStatus = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = setStatusSchema.validate(req.body)
     if (error) return next(error)
     req.body = value
