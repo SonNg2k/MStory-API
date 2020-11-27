@@ -28,6 +28,7 @@ const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be undefined
         .trim() // remove leading and traling space
+        .min(3)
         .max(80),
 
     is_active: Joi.boolean().required(),
@@ -52,6 +53,7 @@ const projectSchema = Joi.object({
     name,
     description: Joi.string()
         .allow('') // can be undefined
+        .trim()
         .max(5000)
         .required(),
 

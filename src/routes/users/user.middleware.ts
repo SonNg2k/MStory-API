@@ -23,20 +23,20 @@ export const parseUserQueryParams = (req: Request, res: Response, next: NextFunc
 }
 
 export const validateAddUser = (req: Request, res: Response, next: NextFunction) => {
-    const { error } = addUserSchema.validate(req.body, { allowUnknown: true })
+    const { error, value } = addUserSchema.validate(req.body, { allowUnknown: true })
     if (error) return next(new createError.UnprocessableEntity("Invalid payload to add user"))
+    req.body = value
     next()
 }
 
 export const validateEditUser = (req: Request, res: Response, next: NextFunction) => {
-    const { error: usernameErr } = username.validate(req.params.username)
-    if (usernameErr) return next(usernameErr)
-    const { error: editPayloadErr } = editUserChema.validate(req.body, { allowUnknown: true })
-    if (editPayloadErr) return next(editPayloadErr)
+    const { error, value } = editUserChema.validate(req.body, { allowUnknown: true })
+    if (error) return next(error)
+    req.body = value
     next()
 }
 
-export const validateDeleteUser = (req: Request, res: Response, next: NextFunction) => {
+export const checkUsername = (req: Request, res: Response, next: NextFunction) => {
     const { error } = username.validate(req.params.username)
     if (error) return next(error)
     next()
@@ -45,8 +45,10 @@ export const validateDeleteUser = (req: Request, res: Response, next: NextFuncti
 // Joi validation schemas
 const querySchema = Joi.object({
     keyword: Joi.string()
-        .allow('') // allows keyword to be empty
+        .allow('')
+        .trim()
         .regex(REGEX_LETTERS_SPACES_ONLY)
+        .min(3)
         .max(50),
 
     page: Joi.string()
@@ -58,9 +60,10 @@ const querySchema = Joi.object({
 const username = Joi.string()
     .min(6)
     .regex(REGEX_GITHUB_USERNAME)
-    .required() // based on GitHub username's constraints
+    .required()
 
 const fullname = Joi.string()
+    .trim()
     .min(6)
     .max(50)
     .regex(REGEX_LETTERS_SPACES_ONLY)
@@ -78,6 +81,7 @@ const addUserSchema = Joi.object({
     email,
 
     password: Joi.string()
+        .trim()
         .min(6)
         .max(255)
         .required()
@@ -88,6 +92,7 @@ const editUserChema = Joi.object({
     email,
 
     password: Joi.string()
+        .trim()
         .min(6)
         .max(255)
 })

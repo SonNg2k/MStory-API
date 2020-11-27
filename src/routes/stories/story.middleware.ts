@@ -21,6 +21,7 @@ const querySchema = Joi.object({
     keyword: Joi.string()
         .allow('') // allows keyword to be undefined
         .trim() // remove leading and traling space
+        .min(3)
         .max(80),
 
     status: Joi.string().allow('').valid(...STORY_STATUS),
@@ -38,7 +39,7 @@ const storySchema = Joi.object({
 
     type: Joi.string().valid(...STORY_TYPES).required(),
 
-    points: Joi.number().min(0).integer().max(32767).required(),
+    points: Joi.number().integer().min(0).max(32767).required(),
 
-    description: Joi.string().allow('').max(5000).required()
+    description: Joi.string().allow('').trim().max(5000).required()
 })
