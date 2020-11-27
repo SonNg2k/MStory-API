@@ -24,3 +24,26 @@ export const fetchProjectStories = async (req: Request, res: Response) => {
     })
     res.status(200).json({ total_count, project_stories })
 }
+
+export const upsertProjectStory = async (req: Request, res: Response) => {
+    const { title, type, points, description } = req.body
+    const { projectID, storyID } = req.params
+    let story
+
+    if (projectID) // POST --> /projects/:projectID/stories
+        story = await storyRepo()
+            .create({ title, type, points, description, project: { project_id: projectID } })
+    if (storyID) { // PUT --> /stories/:storyID
+        story = await findStoryByID(storyID)
+        storyRepo().merge(story, { title, type, points, description })
+    }
+    // @ts-ignore
+    const result = await storyRepo().save(story)
+    res.status(200).json(result)
+}
+
+const findStoryByID = async (storyID: string) => {
+    const story = await storyRepo().findOne(storyID)
+    if (!story) return Promise.reject("No story with the given ID is found")
+    return story
+}

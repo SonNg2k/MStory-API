@@ -1,7 +1,7 @@
 import express from 'express';
 import { asyncHandler, checkID } from '../../helpers';
-import { fetchProjectStories } from '../stories/story.controller';
-import { parseStoryQueryParams } from '../stories/story.middleware';
+import { fetchProjectStories, upsertProjectStory } from '../stories/story.controller';
+import { parseStoryQueryParams, validateUpsertStory } from '../stories/story.middleware';
 import { deleteProject, fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
 import { validateSetStatus, parseProjectQueryParams, validateUpsertProject } from './project.middleware';
 
@@ -21,5 +21,6 @@ router.route("/:projectID/set_status")
 
 router.route("/:projectID/stories")
     .get(checkID('projectID'), parseStoryQueryParams, asyncHandler(fetchProjectStories))
+    .post(checkID('projectID'), validateUpsertStory, asyncHandler(upsertProjectStory))
 
 export default router
