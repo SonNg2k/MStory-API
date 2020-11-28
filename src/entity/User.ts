@@ -21,7 +21,7 @@ export default class User extends TrackingDate {
     @Column({ type: "varchar", length: 1024, nullable: true, select: false })
     password: string;
 
-    @Column({ type: 'timestamp', nullable: true })
+    @Column({ type: 'timestamptz', nullable: true })
     last_login: Date
 
     // One user creates 0-n projects
