@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getRepository, ILike } from "typeorm";
 import Story from "../../entity/Story";
+import { findEntityDocByID } from "../../helpers";
 
 const storyRepo = () => getRepository(Story)
 
@@ -34,7 +35,7 @@ export const upsertProjectStory = async (req: Request, res: Response) => {
         story = await storyRepo()
             .create({ title, type, points, description, project: { project_id: projectID } })
     if (storyID) { // PUT --> /stories/:storyID
-        story = await findStoryByID(storyID)
+        story = await findEntityDocByID(storyRepo(), storyID)
         storyRepo().merge(story, { title, type, points, description })
     }
     // @ts-ignore
@@ -46,20 +47,8 @@ export const setStoryStatus = async (req: Request, res: Response) => {
     const { status } = req.body
     const { storyID } = req.params
 
-    const story = await findStoryByID(storyID)
+    const story = await findEntityDocByID(storyRepo(), storyID)
     storyRepo().merge(story, { status })
     await storyRepo().save(story)
     res.status(204).json()
-}
-
-export const removeProjectStory = async (req: Request, res: Response) => {
-    const story = await findStoryByID(req.params.storyID)
-    await storyRepo().remove(story)
-    res.status(200).json({ message: `${story.title} has been deleted successfully` })
-}
-
-const findStoryByID = async (storyID: string) => {
-    const story = await storyRepo().findOne(storyID)
-    if (!story) return Promise.reject("No story with the given ID is found")
-    return story
 }

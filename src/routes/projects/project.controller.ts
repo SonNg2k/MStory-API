@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { getRepository, ILike } from "typeorm";
 import Project from "../../entity/Project";
+import { findEntityDocByID } from "../../helpers";
 
 const projectRepo = () => getRepository(Project)
 
 export const fetchSpecificProject = async (req: Request, res: Response) => {
-    const project = await findProjectByID(req.params.projectID)
+    const project = await findEntityDocByID(projectRepo(), req.params.projectID)
     res.status(200).json(project)
 }
 
@@ -33,7 +34,7 @@ export const upsertProject = async (req: Request, res: Response) => {
     let project
 
     if (projectID) { // PUT --> /projects/:projectID
-        project = await findProjectByID(projectID)
+        project = await findEntityDocByID(projectRepo(), projectID)
         projectRepo().merge(project, { name, description, is_public })
     } else // POST --> /projects
         project = await projectRepo().create({ name, description, is_public })
@@ -42,21 +43,9 @@ export const upsertProject = async (req: Request, res: Response) => {
 }
 
 export const updateProjectStatus = async (req: Request, res: Response) => {
-    const project = await findProjectByID(req.params.projectID)
+    const project = await findEntityDocByID(projectRepo(), req.params.projectID)
     const { is_active } = req.body
     projectRepo().merge(project, { is_active })
     await projectRepo().save(project)
     res.status(204).json()
-}
-
-export const deleteProject = async (req: Request, res: Response) => {
-    const projectToRemove = await findProjectByID(req.params.projectID)
-    await projectRepo().remove(projectToRemove)
-    res.status(200).json({ message: `${projectToRemove.name} has been deleted successfully` })
-}
-
-const findProjectByID = async (projectID: string) => {
-    const project = await projectRepo().findOne(projectID)
-    if (!project) return Promise.reject("No project with the given ID is found")
-    return project
 }
