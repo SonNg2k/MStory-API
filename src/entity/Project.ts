@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn, BeforeInsert, ManyToOne, OneToMany, JoinColumn } from "typeorm";
 import { ulid } from "ulid";
+import ProjectMembers from "./ProjectMembers";
 import Story from "./Story";
 import TrackingDate from "./TrackingDate";
 import User from "./User";
@@ -30,6 +31,10 @@ export default class Project extends TrackingDate {
     // A project has 0-n stories
     @OneToMany(type => Story, story => story.project)
     stories: Story[]
+
+    // A project has 0-n members (users)
+    @OneToMany(type => ProjectMembers, projectMembers => projectMembers.project)
+    members: ProjectMembers[]
 
     @BeforeInsert()
     private beforeInsert() {
