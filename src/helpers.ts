@@ -1,5 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import Joi from "joi";
+import { nanoid } from 'nanoid'
 import { EntityTarget, getRepository, Repository } from "typeorm";
 
 export const asyncHandler = (asyncFn: RequestHandler) =>
@@ -26,6 +27,16 @@ export const findEntityDocByID = async <Entity>(entityRepo: Repository<Entity>, 
     const doc = await entityRepo.findOne(docID)
     if (!doc) return Promise.reject("No document with the given ID is found")
     return doc
+}
+
+// email dropped here is already validated by middleware
+export const constructUserFromEmail = (email: string): Object => {
+    const username = email.substring(0, email.indexOf('@'))
+    return {
+        fullname: username,
+        email: email,
+        username: nanoid(39).replace(/[^0-9a-z]/gi, '') // remove non-alphanumeric chars
+    }
 }
 
 export const omit = (obj: Object, keys: string[]) =>
