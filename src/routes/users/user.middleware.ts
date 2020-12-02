@@ -1,22 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import Joi from "joi";
-import _ from "lodash";
 import { REGEX_DIGITS_ONLY, REGEX_EMAIL, REGEX_GITHUB_USERNAME, REGEX_LETTERS_SPACES_ONLY } from "../../constants";
 
 export const parseUserQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
-    if (error) {
-        const returnErr = {
-            errcode: "INVALID_QUERY_STRING",
-            message: "Invalid query params",
-            detail: _.chain(error.details)
-                .keyBy("context.key")
-                .mapValues('context.value')
-                .value()
-        }
-        return next(createError(400, returnErr))
-    }
+    if (error) return next(error)
     value.page = +value.page // cast 'page' to integer
     req.query = value
     next()
