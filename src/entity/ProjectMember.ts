@@ -3,7 +3,7 @@ import Project from "./Project";
 import User from "./User";
 
 @Entity('project_members')
-export default class ProjectMembers {
+export default class ProjectMember {
     @ManyToOne(type => Project, project => project.members, { primary: true })
     @JoinColumn({ name: "project_id" })
     project: Project
