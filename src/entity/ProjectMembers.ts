@@ -1,4 +1,4 @@
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne } from "typeorm";
 import Project from "./Project";
 import User from "./User";
 
@@ -14,4 +14,7 @@ export default class ProjectMembers {
 
     @CreateDateColumn({ type: "timestamptz", update: false, select: false })
     created_at: Date;
+
+    @Column({ type: 'varchar', length: 10 })
+    role: string
 }
