@@ -6,7 +6,6 @@ dependencies:
   faker: 5.1.0
   http-errors: 1.8.0
   joi: 17.3.0
-  lodash: 4.17.20
   nanoid: 3.1.19
   pg: 8.5.1
   pretty-error: 2.1.2
@@ -1734,7 +1733,6 @@ specifiers:
   faker: ^5.1.0
   http-errors: ^1.8.0
   joi: ^17.3.0
-  lodash: ^4.17.20
   nanoid: ^3.1.19
   pg: ^8.5.0
   pretty-error: ^2.1.2

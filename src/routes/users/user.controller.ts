@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import _ from "lodash";
 import { getRepository, ILike } from "typeorm";
 import User from "../../entity/User";
+import { omit } from "../../helpers";
 
 const userRepo = () => getRepository(User)
 
@@ -24,7 +24,7 @@ export const addUser = async (req: Request, res: Response) => {
     const { username, fullname, email, password } = req.body
     const newUser = await userRepo().create({ username, fullname, email, password })
     const result = await userRepo().save(newUser)
-    res.status(201).json(_.omit(result, ['password']))
+    res.status(201).json(omit(result, ['password']))
 }
 
 export const editUser = async (req: Request, res: Response) => {
@@ -33,7 +33,7 @@ export const editUser = async (req: Request, res: Response) => {
     const { email, fullname, password } = req.body
     userRepo().merge(userToEdit, { email, fullname, password })
     const result = await userRepo().save(userToEdit)
-    res.status(200).json(_.omit(result, ['password']))
+    res.status(200).json(omit(result, ['password']))
 }
 
 export const deleteUser = async (req: Request, res: Response) => {
