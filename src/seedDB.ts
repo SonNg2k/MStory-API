@@ -58,11 +58,11 @@ const randomDate = (start: Date, end: Date) => {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
 
-export default () => {
+export default async () => {
     //@ts-ignore
     seedUsers(parseInt(process.env.USERS_TO_SEED))
     //@ts-ignore
-    seedProjects(parseInt(process.env.PROJECTS_TO_SEED))
+    await seedProjects(parseInt(process.env.PROJECTS_TO_SEED))
     //@ts-ignore
     seedStories(parseInt(process.env.STORIES_TO_SEED))
 }
