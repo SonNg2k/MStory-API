@@ -13,6 +13,12 @@ export const checkID = (urlParamDocID: 'projectID' | 'storyID') =>
         next()
     }
 
+export const removeArrayItem = (arr: Array<any>, index: number) => {
+    const clone = [...arr]
+    clone.splice(index, 1)
+    return clone
+}
+
 // Generic controller to delete the Entity document
 export const deleteEntityDoc = <Entity>(entityClass: EntityTarget<Entity>, urlParamDocID: 'projectID' | 'storyID') =>
     async (req: Request, res: Response) => {

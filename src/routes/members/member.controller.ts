@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { getConnection, getManager, getRepository } from "typeorm";
 import ProjectMember from "../../entity/ProjectMember";
 import User from "../../entity/User";
-import { constructUserFromEmail, omit } from "../../helpers";
+import { constructUserFromEmail, omit, removeArrayItem } from "../../helpers";
 
 const userRepo = () => getRepository(User)
 
@@ -12,22 +12,34 @@ export const fetchProjectMembers = async (req: Request, res: Response) => {
     // @ts-ignore
     const skip: number = (page - 1) * 6
 
+    let queryParams: Array<any> = [projectID, skip]
+    let selectConds = ''
+    let countConds = ''
+    if (keyword) {
+        selectConds = ` and m.fullname ilike ($${queryParams.length + 1})`
+        countConds = ` and m.fullname ilike ($${queryParams.length})`
+        queryParams = [...queryParams, `%${keyword}%`]
+    }
+    if (role) {
+        selectConds += ` and pm.role = $${queryParams.length + 1}`
+        countConds += ` and pm.role = $${queryParams.length}`
+        queryParams = [...queryParams, role]
+    }
+
     const selectQuery = `
     select pm.role as role, m.user_id, m.fullname, m.username, pm.created_at as since
     from project_members pm
-    inner join users m on m.user_id = pm.user_id and pm.project_id = $1
-    order by pm.created_at
-    offset $2
-    limit 6;
-    `
+    inner join users m on m.user_id = pm.user_id and pm.project_id = $1 ${selectConds}
+    order by pm.created_at desc
+    offset $2 limit 6;`
+
     const countQuery = `
     select COUNT(distinct (pm.project_id, pm.user_id)) as cnt
     from project_members pm
-    inner join users m on m.user_id = pm.user_id and pm.project_id = $1
-    `
-
-    let members = getManager().query(selectQuery, [projectID, skip])
-    let total_count = getManager().query(countQuery, [projectID])
+    inner join users m on m.user_id = pm.user_id and pm.project_id = $1 ${countConds}`
+    const temp = removeArrayItem(queryParams, 1)
+    let members = getManager().query(selectQuery, queryParams)
+    let total_count = getManager().query(countQuery, temp)
     members = await members
     total_count = await total_count
     // @ts-ignore
