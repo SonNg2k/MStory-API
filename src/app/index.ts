@@ -1,9 +1,9 @@
 import express, { Response, Request, NextFunction, Application } from 'express'
 import cors from 'cors'
-import createErr from 'http-errors'
 import { createConnection } from 'typeorm';
 
 import routes from '../routes'
+import createHttpError from 'http-errors';
 
 export { default as errHandler } from './errHandler';
 
@@ -44,7 +44,7 @@ export const setup = (app: Application) => {
 export const initRoutes = (app: Application) => {
     app.use("/", routes);
     app.all("*", (req: Request, _res: Response, next: NextFunction) => {
-        next(new createErr.NotFound(`Page not found. ${req.ip} tried to reach ${req.originalUrl}`))
+        next(new createHttpError.NotFound(`There's nothing at ${req.originalUrl}`))
     })
 }
 

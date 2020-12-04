@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import createHttpError from "http-errors";
 import { getRepository, ILike } from "typeorm";
 import User from "../../entity/User";
 import { omit } from "../../helpers";
@@ -47,6 +48,6 @@ export const deleteUser = async (req: Request, res: Response) => {
 const findUserByUsername = async (username: string) => {
     username = username.toLowerCase()
     const foundUser = await userRepo().findOne({ username })
-    if (!foundUser) return Promise.reject("No user with the given username")
+    if (!foundUser) return Promise.reject(new createHttpError.NotFound("The user does not exist"))
     return foundUser
 }

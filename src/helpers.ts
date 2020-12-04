@@ -1,4 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
+import createHttpError from "http-errors";
 import Joi from "joi";
 import { EntityTarget, getRepository, Repository } from "typeorm";
 
@@ -30,7 +31,7 @@ export const deleteEntityDoc = <Entity>(entityClass: EntityTarget<Entity>, urlPa
 // Find a doc within a particular repo
 export const findEntityDocByID = async <Entity>(entityRepo: Repository<Entity>, docID: string) => {
     const doc = await entityRepo.findOne(docID)
-    if (!doc) return Promise.reject("No document with the given ID is found")
+    if (!doc) return Promise.reject(new createHttpError.NotFound("The record does not exist"))
     return doc
 }
 

@@ -1,5 +1,5 @@
 import { Application, NextFunction, Request, Response } from 'express';
-import createErr from 'http-errors'
+import createHttpError, { HttpError } from 'http-errors'
 import PrettyError from 'pretty-error'
 
 const pe = new PrettyError()
@@ -22,17 +22,18 @@ const logErrors = (err: Error | any, _req: Request, _res: Response, next: NextFu
     next(err)
 }
 
-// Suppose to take in a raw server error and return a beautiful error message to the client
-const returnErrToClient = (err: Error | any, _req: Request, res: Response, next: NextFunction) => {
+/**
+ * Possilble errors:
+ * -> A beautiful error created by new createError.[code || name]([friendly_msg]))
+ * -> An ugly raw server error (the only way to distinguish this error from the two above is to check if err.statusCode is null)
+ */
+const returnErrToClient = (err: Error | HttpError | any, _req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) return next(err);
-    const { detail } = err
-    if (err.code === "23505" && err.name === "QueryFailedError") err = createErr(409, {
-        code: "UNIQUE_VIOLATION",
-        message: "Resource has already existed",
-        detail: detail
-    })
-    if (!err.statusCode) err = new createErr.InternalServerError('Unknown error, sorry')
-    // All errors are http errors with status code and message
+    // 1) Check if it is the SQL error thrown by DB
+    if (err.code === "23505" && err.name === "QueryFailedError") err = new createHttpError.Conflict('The resource has already existed')
+
+    // 2) Unknown error will be considered as:
+    if (!err.statusCode) err = new createHttpError.InternalServerError('Unknown error, sorry')
     const { statusCode } = err
     res.status(statusCode).json(err)
 }

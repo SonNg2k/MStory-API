@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import createHttpError from "http-errors";
 import { getConnection, getManager, getRepository } from "typeorm";
 import ProjectMember from "../../entity/ProjectMember";
 import User from "../../entity/User";
@@ -49,8 +50,7 @@ export const fetchProjectMembers = async (req: Request, res: Response) => {
 export const assignProjectMember = async (req: Request, res: Response) => {
     const { projectID } = req.params
     const { invited_email, role } = req.body
-    let user = await userRepo
-        ().findOne({ where: { email: invited_email } })
+    let user = await userRepo().findOne({ where: { email: invited_email } })
     if (!user) {
         user = await userRepo().create(constructUserFromEmail(invited_email))
         user = await userRepo().save(user)
@@ -70,7 +70,7 @@ export const setProjectMemberRole = async (req: Request, res: Response) => {
         .where('project_id = :pid', { pid: projectID })
         .andWhere('user_id = :uid', { uid: userID })
         .execute()
-    if (!affected) return Promise.reject("Failed to update project member's role due to false ids")
+    if (!affected) return Promise.reject(new createHttpError.NotFound('The project member does not exist'))
     res.status(204).json()
 }
 
@@ -80,6 +80,6 @@ export const removeProjectMember = async (req: Request, res: Response) => {
         .where('project_id = :pid', { pid: projectID })
         .andWhere('user_id = :uid', { uid: userID })
         .execute()
-    if (!affected) return Promise.reject('Failed to remove member from project due to false ids')
+    if (!affected) return Promise.reject(new createHttpError.NotFound('The project member does not exist'))
     res.status(204).json()
 }
