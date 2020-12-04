@@ -37,9 +37,8 @@ export const fetchProjectMembers = async (req: Request, res: Response) => {
     select COUNT(distinct (pm.project_id, pm.user_id)) as cnt
     from project_members pm
     inner join users m on m.user_id = pm.user_id and pm.project_id = $1 ${countConds}`
-    const temp = removeArrayItem(queryParams, 1)
     let members = getManager().query(selectQuery, queryParams)
-    let total_count = getManager().query(countQuery, temp)
+    let total_count = getManager().query(countQuery, removeArrayItem(queryParams, 1))
     members = await members
     total_count = await total_count
     // @ts-ignore
@@ -47,7 +46,7 @@ export const fetchProjectMembers = async (req: Request, res: Response) => {
     res.status(200).json({ total_count, members })
 }
 
-export const inviteUser = async (req: Request, res: Response) => {
+export const assignProjectMember = async (req: Request, res: Response) => {
     const { projectID } = req.params
     const { invited_email, role } = req.body
     let user = await userRepo
@@ -61,4 +60,14 @@ export const inviteUser = async (req: Request, res: Response) => {
 
     res.status(200)
         .json({ ...omit(user, ['email', 'password', 'last_login', 'created_at', 'updated_at']), role })
+}
+
+export const removeProjectMember = async (req: Request, res: Response) => {
+    const { projectID, userID } = req.params
+    const { affected } = await getConnection().createQueryBuilder().delete().from(ProjectMember)
+        .where('project_id = :pid', { pid: projectID })
+        .andWhere('user_id = :uid', { uid: userID })
+        .execute()
+    if (!affected) return Promise.reject('Failed to remove member from project due to false ids')
+    res.status(204).json()
 }

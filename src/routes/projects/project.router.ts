@@ -2,7 +2,7 @@ import express from 'express';
 import Project from '../../entity/Project';
 import Story from '../../entity/Story';
 import { asyncHandler, checkID, deleteEntityDoc } from '../../helpers';
-import { fetchProjectMembers, inviteUser } from '../members/member.controller';
+import { fetchProjectMembers, assignProjectMember, removeProjectMember } from '../members/member.controller';
 import { fetchProjectStories, upsertProjectStory } from '../stories/story.controller';
 import { parseStoryQueryParams, validateUpsertStory } from '../stories/story.middleware';
 import { fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
@@ -31,6 +31,9 @@ router.route("/:projectID/stories/:storyID")
 
 router.route("/:projectID/members")
     .get(checkID('projectID'), asyncHandler(fetchProjectMembers))
-    .put(checkID('projectID'), asyncHandler(inviteUser))
+    .put(checkID('projectID'), asyncHandler(assignProjectMember))
+
+router.route('/:projectID/members/:userID')
+    .delete(checkID('projectID'), checkID('userID'), asyncHandler(removeProjectMember))
 
 export default router
