@@ -62,6 +62,18 @@ export const assignProjectMember = async (req: Request, res: Response) => {
         .json({ ...omit(user, ['email', 'password', 'last_login', 'created_at', 'updated_at']), role })
 }
 
+export const setProjectMemberRole = async (req: Request, res: Response) => {
+    const { projectID, userID } = req.params
+    const { role } = req.body
+    const { affected } = await getConnection().createQueryBuilder().update(ProjectMember)
+        .set({ role })
+        .where('project_id = :pid', { pid: projectID })
+        .andWhere('user_id = :uid', { uid: userID })
+        .execute()
+    if (!affected) return Promise.reject("Failed to update project member's role due to false ids")
+    res.status(204).json()
+}
+
 export const removeProjectMember = async (req: Request, res: Response) => {
     const { projectID, userID } = req.params
     const { affected } = await getConnection().createQueryBuilder().delete().from(ProjectMember)
