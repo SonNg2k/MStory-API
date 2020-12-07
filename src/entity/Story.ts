@@ -1,6 +1,7 @@
-import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 import { ulid } from "ulid";
 import Project from "./Project";
+import StoryOwner from "./StoryOwner";
 import TrackingDate from "./TrackingDate";
 import User from "./User";
 
@@ -35,6 +36,10 @@ export default class Story extends TrackingDate {
     // Stories associated to the deleted project are removed
     @JoinColumn({ name: "project_id" })
     project: Project
+
+    // A story has 0-n owners
+    @OneToMany(type => StoryOwner, storyOwner => storyOwner.story)
+    owners: StoryOwner[]
 
     @BeforeInsert()
     private beforeInsert() {

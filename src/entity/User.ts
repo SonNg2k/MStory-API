@@ -3,6 +3,7 @@ import { ulid } from 'ulid';
 import Project from "./Project";
 import ProjectMember from "./ProjectMember";
 import Story from "./Story";
+import StoryOwner from "./StoryOwner";
 import TrackingDate from "./TrackingDate";
 
 @Entity({ name: "users" })
@@ -36,6 +37,10 @@ export default class User extends TrackingDate {
     // A user can be a member of 0-n projects
     @OneToMany(type => ProjectMember, projectMember => projectMember.member)
     projects_invited: ProjectMember[]
+
+    // A user can be an owner of 0-n stories
+    @OneToMany(type => StoryOwner, storyOwner => storyOwner.owner)
+    stories_owned: StoryOwner[]
 
     @BeforeInsert()
     private beforeInsert() {
