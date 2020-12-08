@@ -4,7 +4,7 @@ import User from "./User";
 
 @Entity('project_members')
 export default class ProjectMember {
-    @ManyToOne(type => Project, project => project.members, { primary: true })
+    @ManyToOne(type => Project, project => project.members, { primary: true, onDelete: 'CASCADE' })
     @JoinColumn({ name: "project_id" })
     project: Project
 

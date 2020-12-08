@@ -4,7 +4,7 @@ import User from "./User";
 
 @Entity('story_owners')
 export default class StoryOwner {
-    @ManyToOne(type => Story, story => story.owners, { primary: true })
+    @ManyToOne(type => Story, story => story.owners, { primary: true, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'story_id' })
     story: Story
 
