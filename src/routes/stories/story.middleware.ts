@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import createHttpError from "http-errors";
 import Joi from "joi";
+import { getRepository } from "typeorm";
 import { REGEX_DIGITS_ONLY, STORY_STATUS, STORY_TYPES } from "../../constants";
+import ProjectMember from "../../entity/ProjectMember";
 
 export const parseStoryQueryParams = async (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query)
@@ -10,10 +13,19 @@ export const parseStoryQueryParams = async (req: Request, res: Response, next: N
     next()
 }
 
-export const validateUpsertStory = async (req: Request, res: Response, next: NextFunction) => {
+const projectMemRepo = () => getRepository(ProjectMember)
+export const parseUpsertStory = async (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = storySchema.validate(req.body)
     if (error) return next(error)
     req.body = value
+
+    // Check if all story owners are members of the projectID
+    const { projectID } = req.params
+    const { owner_ids } = req.body
+    for (const ownerID of owner_ids as string[]) {
+        const found = await projectMemRepo().findOne({ project: { project_id: projectID }, member: { user_id: ownerID } })
+        if (!found) return next(new createHttpError.UnprocessableEntity("One of the story owners is NOT member of the project"))
+    }
     next()
 }
 
@@ -47,7 +59,9 @@ const storySchema = Joi.object({
 
     points: Joi.number().integer().min(0).max(32767).required(),
 
-    description: Joi.string().allow('').trim().max(5000).required()
+    description: Joi.string().allow('').trim().max(5000).required(),
+
+    owner_ids: Joi.array().items(Joi.string().length(26)).unique().required()
 })
 
 const setStatusSchema = Joi.object({ status: Joi.string().valid(...STORY_STATUS).required() })

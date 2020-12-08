@@ -1,12 +1,12 @@
 import express from 'express'
 import { asyncHandler, checkID } from '../../helpers'
 import { setStoryStatus, upsertProjectStory } from './story.controller'
-import { validateSetStoryStatus, validateUpsertStory } from './story.middleware'
+import { validateSetStoryStatus, parseUpsertStory } from './story.middleware'
 
 const router = express.Router()
 
 router.route('/:storyID')
-    .put(checkID('storyID'), validateUpsertStory, asyncHandler(upsertProjectStory))
+    .put(checkID('storyID'), parseUpsertStory, asyncHandler(upsertProjectStory))
 
 router.route('/:storyID/set_status')
     .put(checkID('storyID'), validateSetStoryStatus, asyncHandler(setStoryStatus))

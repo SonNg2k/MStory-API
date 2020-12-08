@@ -4,7 +4,7 @@ import Story from '../../entity/Story';
 import { asyncHandler, checkID, deleteEntityDoc } from '../../helpers';
 import { fetchProjectMembers, assignProjectMember, removeProjectMember, setProjectMemberRole } from '../members/member.controller';
 import { fetchProjectStories, upsertProjectStory } from '../stories/story.controller';
-import { parseStoryQueryParams, validateUpsertStory } from '../stories/story.middleware';
+import { parseStoryQueryParams, parseUpsertStory } from '../stories/story.middleware';
 import { fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
 import { validateSetProjectStatus, parseProjectQueryParams, validateUpsertProject } from './project.middleware';
 
@@ -24,7 +24,7 @@ router.route("/:projectID/set_status")
 
 router.route("/:projectID/stories")
     .get(checkID('projectID'), parseStoryQueryParams, asyncHandler(fetchProjectStories))
-    .post(checkID('projectID'), validateUpsertStory, asyncHandler(upsertProjectStory))
+    .post(checkID('projectID'), parseUpsertStory, asyncHandler(upsertProjectStory))
 
 router.route("/:projectID/stories/:storyID")
     .delete(checkID('projectID'), checkID('storyID'), asyncHandler(deleteEntityDoc(Story, 'storyID')))
