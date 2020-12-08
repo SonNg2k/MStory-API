@@ -19,6 +19,14 @@ export const removeArrayItem = (arr: Array<any>, index: number) => {
     return clone
 }
 
+export const storyOwnerList = (storyID: string, ownerIDs: string[]): Object[] => {
+    const result: Object[] = []
+    for (const idx in ownerIDs) {
+        result[idx] = { story: { story_id: storyID }, owner: { user_id: ownerIDs[idx] } }
+    }
+    return result
+}
+
 // Generic controller to delete the Entity document
 export const deleteEntityDoc = <Entity>(entityClass: EntityTarget<Entity>, urlParamDocID: 'projectID' | 'storyID' | 'userID') =>
     async (req: Request, res: Response) => {
