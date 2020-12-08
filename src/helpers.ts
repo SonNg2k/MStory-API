@@ -6,7 +6,7 @@ import { EntityTarget, getRepository, Repository } from "typeorm";
 export const asyncHandler = (asyncFn: RequestHandler) =>
     (req: Request, res: Response, next: NextFunction) => Promise.resolve(asyncFn(req, res, next)).catch(next)
 
-export const checkID = (urlParamDocID: 'projectID' | 'storyID' | 'userID') =>
+export const checkID = (urlParamDocID: 'projectID' | 'storyID' | 'userID' | 'ownerID') =>
     (req: Request, res: Response, next: NextFunction) => {
         const { error } = Joi.string().length(26).required().validate(req.params[urlParamDocID])
         if (error) return next(error)
@@ -28,7 +28,7 @@ export const storyOwnerList = (storyID: string, ownerIDs: string[]): Object[] =>
 }
 
 // Generic controller to delete the Entity document
-export const deleteEntityDoc = <Entity>(entityClass: EntityTarget<Entity>, urlParamDocID: 'projectID' | 'storyID' | 'userID') =>
+export const deleteEntityDoc = <Entity>(entityClass: EntityTarget<Entity>, urlParamDocID: 'projectID' | 'storyID' | 'userID' | 'ownerID') =>
     async (req: Request, res: Response) => {
         const entityRepo = getRepository(entityClass)
         const foundDoc = await findEntityDocByID(entityRepo, req.params[urlParamDocID])
