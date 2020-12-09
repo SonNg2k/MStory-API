@@ -1,8 +1,10 @@
 import faker from 'faker';
-import { getRepository } from "typeorm";
-import { STORY_STATUS, STORY_TYPES } from './constants';
+import { getConnection, getRepository } from "typeorm";
+import { PROJECT_ROLES, STORY_STATUS, STORY_TYPES } from './constants';
 import Project from './entity/Project';
+import ProjectMember from './entity/ProjectMember';
 import Story from './entity/Story';
+import StoryOwner from './entity/StoryOwner';
 import User from "./entity/User";
 
 // 1) Seed users
@@ -20,7 +22,7 @@ const seedUsers: (totalCount: number) => Promise<User[]> = async (totalCount) =>
     return result
 }
 
-// 2) Seed projects (need to seed project members)
+// 2) Seed projects
 const projectRepo = () => getRepository(Project)
 const seedProjects: (totalCount: number, users: User[]) => Promise<Project[]> = async (totalCount, users) => {
     const result: Project[] = []
@@ -41,7 +43,29 @@ const seedProjects: (totalCount: number, users: User[]) => Promise<Project[]> = 
     return result
 }
 
-// 3) Seed project stories (need to seed story owners and story creators)
+// 3) Seed project members
+const seedMembers: (t: number, p: Project[], u: User[]) => Promise<any[]> = async (totalCount, projects, users) => {
+    let result: Array<any> = []
+    let insertedRecords: string[] = []
+
+    for (let count = 0; count < totalCount; count++) {
+        const projectToLink = projects[Math.floor(Math.random() * projects.length)]
+        const userToLink = users[Math.floor(Math.random() * users.length)]
+        const project = { project_id: projectToLink.project_id }
+        const { project_id } = project
+        const member = { user_id: userToLink.user_id }
+        const { user_id } = member
+        if (!insertedRecords.includes(project_id + user_id)) {
+            await getConnection().createQueryBuilder().insert().into(ProjectMember)
+                .values({ project, member, role: PROJECT_ROLES[Math.floor(Math.random() * 5)] }).execute()
+            insertedRecords = [...insertedRecords, project_id + user_id]
+            result = [...result, { ...project, ...member }]
+        }
+    }
+    return result
+}
+
+// 4) Seed project stories (need to seed sstory creators)
 const storyRepo = () => getRepository(Story)
 const seedStories: (totalCount: number, projects: Project[]) => Promise<Story[]> = async (totalCount, projects) => {
     const result: Story[] = []
@@ -60,6 +84,17 @@ const seedStories: (totalCount: number, projects: Project[]) => Promise<Story[]>
     return result
 }
 
+// 5) Seed story owners
+const seedOwners = async (stories: Story[], projectMembers: { project_id: string, user_id: string }[]) => {
+    for (const story of stories) {
+        for (const member of projectMembers) {
+            if (story.project.project_id === member.project_id) // project member and story lives in the same project
+                await getConnection().createQueryBuilder().insert().into(StoryOwner)
+                    .values({ story: { story_id: story.story_id }, owner: { user_id: member.user_id } }).execute()
+        }
+    }
+}
+
 const randomDate = (start: Date, end: Date) => {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
@@ -67,5 +102,7 @@ const randomDate = (start: Date, end: Date) => {
 export default async () => {
     const users = await seedUsers(parseInt(process.env.USERS_TO_SEED as string))
     const projects = await seedProjects(parseInt(process.env.PROJECTS_TO_SEED as string), users)
-    seedStories(parseInt(process.env.STORIES_TO_SEED as string), projects)
+    const projectMembers = await seedMembers(parseInt(process.env.PROJECTS_MEMBERS_TO_SEED as string), projects, users)
+    const stories = await seedStories(parseInt(process.env.STORIES_TO_SEED as string), projects)
+    seedOwners(stories, projectMembers)
 }
