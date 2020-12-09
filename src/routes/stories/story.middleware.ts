@@ -21,11 +21,12 @@ export const parseUpsertStory = async (req: Request, res: Response, next: NextFu
 
     // Check if all story owners are members of the projectID
     const { projectID } = req.params
-    const { owner_ids } = req.body
+    const { owner_ids = [] } = req.body
     for (const ownerID of owner_ids as string[]) {
         const found = await projectMemRepo().findOne({ project: { project_id: projectID }, member: { user_id: ownerID } })
         if (!found) return next(new createHttpError.UnprocessableEntity("One of the story owners is NOT member of the project"))
     }
+    req.body.owner_ids = owner_ids
     next()
 }
 
@@ -61,7 +62,7 @@ const storySchema = Joi.object({
 
     description: Joi.string().allow('').trim().max(5000).required(),
 
-    owner_ids: Joi.array().items(Joi.string().length(26)).unique().required()
+    owner_ids: Joi.array().items(Joi.string().length(26)).unique()
 })
 
 const setStatusSchema = Joi.object({ status: Joi.string().valid(...STORY_STATUS).required() })

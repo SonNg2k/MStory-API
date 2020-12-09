@@ -20,7 +20,7 @@ export const fetchProjectStories = async (req: Request, res: Response) => {
     const [project_stories, total_count] = await storyRepo().findAndCount({
         select: ['story_id', 'title', 'type', 'points', 'description', 'status', 'updated_at'],
         where: whereClause,
-        order: { created_at: "ASC" },
+        order: { created_at: 'DESC' },
         skip: skip,
         take: 6,
     })
@@ -38,7 +38,8 @@ export const upsertProjectStory = async (req: Request, res: Response) => {
             .values(Object.assign(story, {
                 title, type, points, description, project: { project_id: projectID }
             })).execute()
-        await getConnection().createQueryBuilder().insert().into(StoryOwner)
+        // Add story owners if provided...
+        if (owner_ids.length > 0) await getConnection().createQueryBuilder().insert().into(StoryOwner)
             .values(storyOwnerList(result.identifiers[0].story_id, owner_ids)).execute()
     }
     if (storyID) { // PUT --> /stories/:storyID
