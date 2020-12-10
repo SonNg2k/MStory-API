@@ -1,7 +1,7 @@
-export const STORY_STATUS = ['unstarted', 'finished', 'delivered', 'accepted', 'rejected']
-export const STORY_TYPES = ['feature', 'bug', 'chore']
+export const STORY_STATUS = ['unstarted', 'finished', 'delivered', 'accepted', 'rejected'] as const
+export const STORY_TYPES = ['feature', 'bug', 'chore'] as const
 
-export const PROJECT_ROLES = ['owner', 'guest', 'reporter', 'developer', 'maintainer']
+export const PROJECT_ROLES = ['owner', 'guest', 'reporter', 'developer', 'maintainer'] as const
 
 // REGEX constants
 export const REGEX_DIGITS_ONLY = /^[0-9]+$/
