@@ -20,5 +20,5 @@
       "*": ["node_modules/*", "src/types/*"]
     }
   },
-  "include": ["src/**/*", "ormconfig.ts", "env.ts"]
+  "include": ["src/**/*"]
 }
