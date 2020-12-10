@@ -30,11 +30,14 @@ export const fetchProjectStories = async (req: Request, res: Response) => {
         inner join users u on so.user_id = u.user_id and so.story_id = $1
         order by so.created_at desc;
     `
-    for (const idx in project_stories) { // attach owners to each story
-        const { story_id } = project_stories[idx]
-        const storyOwners = await getManager().query(getStoryOwnerQuery, [story_id])
-        project_stories[idx].owners = storyOwners
-    }
+    const asyncFuncs = []
+    for (const idx in project_stories)
+        asyncFuncs.push((async () => { // attach owners to each story
+            const { story_id } = project_stories[idx]
+            const storyOwners = await getManager().query(getStoryOwnerQuery, [story_id])
+            project_stories[idx].owners = storyOwners
+        })())
+    await Promise.all(asyncFuncs)
     res.status(200).json({ total_count, project_stories })
 }
 
