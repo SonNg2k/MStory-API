@@ -3,6 +3,8 @@ import { getConnection, getManager, getRepository, ILike } from "typeorm";
 import Story from "../../entity/Story";
 import StoryOwner from "../../entity/StoryOwner";
 import { findEntityDocByID, omit, storyOwnerList } from "../../helpers";
+import StoryRepo from "./story.repo";
+
 
 const storyRepo = () => getRepository(Story)
 
@@ -24,17 +26,11 @@ export const fetchProjectStories = async (req: Request, res: Response) => {
         skip: skip,
         take: 6,
     })
-    const getStoryOwnerQuery = `
-        select u.user_id, u.fullname, u.username, so.created_at as assigned_at
-        from story_owners so
-        inner join users u on so.user_id = u.user_id and so.story_id = $1
-        order by so.created_at desc;
-    `
     const asyncFuncs = []
     for (const idx in project_stories)
         asyncFuncs.push((async () => { // attach owners to each story
             const { story_id } = project_stories[idx]
-            const storyOwners = await getManager().query(getStoryOwnerQuery, [story_id])
+            const storyOwners = await StoryRepo.findOwnersByStoryID(story_id)
             project_stories[idx].owners = storyOwners
         })())
     await Promise.all(asyncFuncs)
@@ -55,28 +51,14 @@ export const upsertProjectStory = async (req: Request, res: Response) => {
         // Add story owners if provided...
         if (owner_ids.length > 0) await getConnection().createQueryBuilder().insert().into(StoryOwner)
             .values(storyOwnerList(result.identifiers[0].story_id, owner_ids)).execute()
+        story.owners = await StoryRepo.findOwnersByStoryID(result.identifiers[0].story_id)
     }
     if (storyID) { // PUT --> /stories/:storyID
         story = await findEntityDocByID(storyRepo(), storyID)
         storyRepo().merge(story, { title, type, points, description })
         story = await storyRepo().save(story)
     }
-    res.status(200).json(omit(story, ['created_at']))
-}
-
-export const addStoryOwner = async (req: Request, res: Response) => {
-    const { storyID } = req.params
-    const { owner_id } = req.body
-    await getConnection().createQueryBuilder().insert().into(StoryOwner)
-        .values({ story: { story_id: storyID }, owner: { user_id: owner_id } }).execute()
-    res.status(204).json()
-}
-
-export const removeStoryOwner = async (req: Request, res: Response) => {
-    const { storyID, ownerID } = req.params
-    await getConnection().createQueryBuilder().delete().from(StoryOwner)
-        .where('story_id = :sid', { sid: storyID }).andWhere('user_id = :uid', { uid: ownerID }).execute()
-    res.status(204).json()
+    res.status(200).json(omit(story, ['created_at', 'project']))
 }
 
 export const setStoryStatus = async (req: Request, res: Response) => {

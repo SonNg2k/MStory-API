@@ -1,6 +1,7 @@
 import express from 'express'
 import { asyncHandler, checkID } from '../../helpers'
-import { addStoryOwner, removeStoryOwner, setStoryStatus, upsertProjectStory } from './story.controller'
+import { addStoryOwner, removeStoryOwner } from '../owners/owner.controller'
+import { setStoryStatus, upsertProjectStory } from './story.controller'
 import { validateSetStoryStatus, parseUpsertStory } from './story.middleware'
 
 const router = express.Router()
