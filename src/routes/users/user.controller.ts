@@ -3,7 +3,7 @@ import UserRepo from "./user.repo";
 
 export const fetchUsers = async (req: Request, res: Response) => {
     let { keyword, role, page } = <unknown>req.query as { keyword: string, role: string, page: number }
-    res.status(200).json(await UserRepo.getUserListByPage(keyword, role, page))
+    res.status(200).json(await UserRepo.getUsersByPage(page, keyword, role))
 }
 
 export const addUser = async (req: Request, res: Response) => {
