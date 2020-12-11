@@ -1,53 +1,23 @@
 import { Request, Response } from "express";
-import createHttpError from "http-errors";
-import { getRepository, ILike } from "typeorm";
-import User from "../../entity/User";
-import { omit } from "../../helpers";
-
-const userRepo = () => getRepository(User)
+import UserRepo from "./user.repo";
 
 export const fetchUsers = async (req: Request, res: Response) => {
-    let { keyword, role, page } = req.query
-    const whereClause = (keyword) ? { fullname: ILike(`%${keyword}%`) } : undefined;
-    // @ts-ignore
-    const skip: number = (page - 1) * 6
-
-    const [users, total_count] = await userRepo().findAndCount({
-        where: whereClause,
-        order: { fullname: "ASC" },
-        skip: skip,
-        take: 6
-    })
-    res.status(200).json({ total_count, users })
+    let { keyword, role, page } = <unknown>req.query as { keyword: string, role: string, page: number }
+    const skip = (page - 1) * 6
+    res.status(200).json(await UserRepo.getUserList(keyword, role, skip))
 }
 
 export const addUser = async (req: Request, res: Response) => {
     const { username, fullname, email, password } = req.body
-    const newUser = await userRepo().create({ username, fullname, email, password })
-    const result = await userRepo().save(newUser)
-    res.status(201).json(omit(result, ['password']))
+    res.status(201).json(await UserRepo.createUser({ username, fullname, email, password }))
 }
 
 export const editUser = async (req: Request, res: Response) => {
-    const userToEdit = await findUserByUsername(req.params.username)
-
+    const { username } = req.params
     const { email, fullname, password } = req.body
-    userRepo().merge(userToEdit, { email, fullname, password })
-    const result = await userRepo().save(userToEdit)
-    res.status(200).json(omit(result, ['password']))
+    res.status(200).json(await UserRepo.findByUsernameAndEdit(username, { email, fullname, password }))
 }
 
-export const deleteUser = async (req: Request, res: Response) => {
-    const userToRemove = await findUserByUsername(req.params.username)
+export const deleteUser = async (req: Request, res: Response) =>
+    res.status(204).json(await UserRepo.findByUsernameAndDelete(req.params.username))
 
-    await userRepo().remove(userToRemove)
-    // Status code 204 will remove the json message, so don't use it
-    res.status(200).json({ message: `${userToRemove.fullname} has been deleted successfully` })
-}
-
-const findUserByUsername = async (username: string) => {
-    username = username.toLowerCase()
-    const foundUser = await userRepo().findOne({ username })
-    if (!foundUser) return Promise.reject(new createHttpError.NotFound("The user does not exist"))
-    return foundUser
-}
