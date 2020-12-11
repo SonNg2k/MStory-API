@@ -32,7 +32,7 @@ export default class Story extends TrackingDate {
     creator: User
 
     // A project has 0-n stories
-    @ManyToOne(type => Project, project => project.stories)
+    @ManyToOne(type => Project, project => project.stories, { onDelete: 'CASCADE' })
     // Projects having user stories must not be deleted
     @JoinColumn({ name: "project_id" })
     project: Project
