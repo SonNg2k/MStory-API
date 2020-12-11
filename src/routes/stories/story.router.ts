@@ -1,6 +1,6 @@
 import express from 'express'
 import { asyncHandler, checkID } from '../../helpers'
-import { addStoryOwner, removeStoryOwner } from '../owners/owner.controller'
+import { addStoryOwner, removeStoryOwner } from './story.controller'
 import { setStoryStatus, upsertProjectStory } from './story.controller'
 import { validateSetStoryStatus, parseUpsertStory } from './story.middleware'
 

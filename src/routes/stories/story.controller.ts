@@ -7,8 +7,9 @@ export const fetchProjectStories = async (req: Request, res: Response) => {
     const { projectID } = req.params
     const { keyword, page, status, type } = <unknown>req.query as { keyword: string, page: number, status: typeof STORY_STATUS[number], type: typeof STORY_TYPES[number] }
 
-    const skip: number = (page - 1) * 6
+    const skip = (page - 1) * 6
     const [project_stories, total_count] = await StoryRepo.findProjectStories(projectID, skip, keyword, status, type)
+    // Populate the story owners to each story found...
     const asyncFuncs = []
     for (const idx in project_stories)
         asyncFuncs.push((async () => { // attach owners to each story
@@ -36,5 +37,18 @@ export const setStoryStatus = async (req: Request, res: Response) => {
     const { status } = req.body
     const { storyID } = req.params
     await StoryRepo.setStoryStatus(storyID, status)
+    res.status(204).json()
+}
+
+export const addStoryOwner = async (req: Request, res: Response) => {
+    const { storyID } = req.params
+    const { owner_id } = req.body
+    await StoryRepo.addStoryOwner(storyID, owner_id)
+    res.status(200).json(await StoryRepo.findStoryOwners(storyID))
+}
+
+export const removeStoryOwner = async (req: Request, res: Response) => {
+    const { storyID, ownerID } = req.params
+    await StoryRepo.removeStoryOwner(storyID, ownerID)
     res.status(204).json()
 }
