@@ -41,14 +41,15 @@ export default class StoryRepo {
      * @param owner_ids: A list of story owner's ids to link to the newStoryDoc
      */
     static createStory = async (newStoryDoc: DeepPartial<Story>, owner_ids: string[] = []) => {
-        const result = await getConnection().createQueryBuilder().insert().into(Story)
-            .values(Object.assign(new Story(), newStoryDoc)).execute()
+        const storyToInsert = Object.assign(new Story(), newStoryDoc)
+        const result = await getConnection().createQueryBuilder().insert().into(Story).values(storyToInsert).execute()
         const { story_id } = result.identifiers[0]
-        // Add story owners if provided...
+        // Link the userIDs to the added story...
         if (owner_ids.length > 0) await getConnection().createQueryBuilder().insert().into(StoryOwner)
             .values(buildStoryOwnerList(story_id, owner_ids)).execute()
-        newStoryDoc.owners = await StoryRepo.findStoryOwners(story_id)
-        return newStoryDoc
+        storyToInsert.owners = await StoryRepo.findStoryOwners(story_id)
+        storyToInsert.status = 'unstarted'
+        return storyToInsert
     }
 
     static updateStory = async (storyID: string, newStoryDoc: DeepPartial<Story>) => {
