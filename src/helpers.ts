@@ -19,8 +19,9 @@ export const removeArrayItem = (arr: Array<any>, index: number) => {
     return clone
 }
 
-export const storyOwnerList = (storyID: string, ownerIDs: string[]): Object[] => {
-    const result: Object[] = []
+type StoryOwnerList = { story: { story_id: string }, owner: { user_id: string } }
+export const buildStoryOwnerList = (storyID: string, ownerIDs: string[]): StoryOwnerList[] => {
+    const result: StoryOwnerList[] = []
     for (const idx in ownerIDs) {
         result[idx] = { story: { story_id: storyID }, owner: { user_id: ownerIDs[idx] } }
     }
