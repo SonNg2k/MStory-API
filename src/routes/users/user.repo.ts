@@ -13,11 +13,12 @@ export default class UserRepo {
         return foundUser
     }
 
-    static getUserList = async (keyword?: string, role?: string, skip: number = 0) => {
+    static getUserListByPage = async (keyword?: string, role?: string, page: number = 1) => {
+        const skip = (page - 1) * 6
         const whereClause = (keyword) ? { fullname: ILike(`%${keyword}%`) } : undefined;
         const [users, total_count] = await UserRepo.getRepo().findAndCount({
             where: whereClause,
-            order: { fullname: "ASC" },
+            order: { created_at: "DESC" },
             skip: skip,
             take: 6
         })
