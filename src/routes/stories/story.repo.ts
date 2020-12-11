@@ -62,4 +62,14 @@ export default class StoryRepo {
         StoryRepo.getRepo().merge(story, { status })
         return await StoryRepo.getRepo().save(story)
     }
+
+    static addStoryOwner = async (storyID: string, ownerID: string) => {
+        await getConnection().createQueryBuilder().insert().into(StoryOwner)
+            .values({ story: { story_id: storyID }, owner: { user_id: ownerID } }).execute()
+    }
+
+    static removeStoryOwner = async (storyID: string, ownerID: string) => {
+        await getConnection().createQueryBuilder().delete().from(StoryOwner)
+            .where('story_id = :sid', { sid: storyID }).andWhere('user_id = :uid', { uid: ownerID }).execute()
+    }
 }
