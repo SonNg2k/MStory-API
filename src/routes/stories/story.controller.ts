@@ -5,7 +5,7 @@ import StoryRepo from "./story.repo";
 
 export const fetchProjectStories = async (req: Request, res: Response) => {
     const { projectID } = req.params
-    const { keyword, page, status, type } = <unknown>req.query as { keyword: string, page: number, status: typeof STORY_STATUS[number], type: typeof STORY_TYPES[number] }
+    const { keyword, page, status, type } = req.query as any
     res.status(200).json(await StoryRepo.getStoriesByProjectIdAndPage(projectID, page, keyword, status, type))
 }
 

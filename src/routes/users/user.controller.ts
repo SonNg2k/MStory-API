@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import UserRepo from "./user.repo";
 
 export const fetchUsers = async (req: Request, res: Response) => {
-    let { keyword, role, page } = <unknown>req.query as { keyword: string, role: string, page: number }
+    let { keyword, role, page } = req.query as any
     res.status(200).json(await UserRepo.getUsersByPage(page, keyword, role))
 }
 
