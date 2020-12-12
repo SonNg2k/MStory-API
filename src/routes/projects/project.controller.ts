@@ -1,31 +1,23 @@
 import { Request, Response } from "express";
-import { getRepository, ILike } from "typeorm";
+import { getRepository } from "typeorm";
 import Project from "../../entity/Project";
 import { findEntityDocByID } from "../../helpers";
+import ProjectRepo from "./project.repo";
 
 const projectRepo = () => getRepository(Project)
 
-export const fetchSpecificProject = async (req: Request, res: Response) => {
-    const project = await findEntityDocByID(projectRepo(), req.params.projectID)
-    res.status(200).json(project)
-}
+export const fetchSpecificProject = async (req: Request, res: Response) =>
+    res.status(200).json(await findEntityDocByID(projectRepo(), req.params.projectID))
 
 export const fetchProjects = async (req: Request, res: Response) => {
-    const { keyword, is_active, view, order, page } = req.query
-    let whereClause = { is_active }
-    // @ts-ignore
-    whereClause = (keyword) ? { ...whereClause, name: ILike(`%${keyword}%`) } : whereClause
-    // @ts-ignore
-    const skip: number = (page - 1) * 6
-    const [projects, total_count] = await projectRepo().findAndCount({
-        select: ["project_id", "name", "description", "is_public" , "updated_at"],
-        where: whereClause,
-        // @ts-ignore
-        order: { [view]: order.toUpperCase() },
-        skip: skip,
-        take: 6
-    })
-    res.status(200).json({ total_count, projects })
+    const { keyword, is_active, view, order, page } = req.query as any
+    res.status(200).json(await ProjectRepo.getProjectsByPage(page, is_active, view, order, keyword))
+}
+
+export const fetchMembersOfProject = async (req: Request, res: Response) => {
+    const { projectID } = req.params
+    const { keyword, role, page } = req.query as any
+    res.status(200).json(await ProjectRepo.getMembersOfProjectByPage(projectID, page, keyword, role))
 }
 
 export const upsertProject = async (req: Request, res: Response) => {
@@ -34,18 +26,31 @@ export const upsertProject = async (req: Request, res: Response) => {
     let project
 
     if (projectID) { // PUT --> /projects/:projectID
-        project = await findEntityDocByID(projectRepo(), projectID)
-        projectRepo().merge(project, { name, description, is_public })
+        project = await ProjectRepo.findByIdAndUpdate(projectID, { name, description, is_public })
     } else // POST --> /projects
-        project = await projectRepo().create({ name, description, is_public })
-    const result = await projectRepo().save(project)
-    res.status(200).json(result)
+        project = await ProjectRepo.createProject({ name, description, is_public })
+    res.status(200).json(project)
 }
 
 export const updateProjectStatus = async (req: Request, res: Response) => {
-    const project = await findEntityDocByID(projectRepo(), req.params.projectID)
+    const { projectID } = req.params
     const { is_active } = req.body
-    projectRepo().merge(project, { is_active })
-    await projectRepo().save(project)
-    res.status(204).json()
+    res.status(204).json(await ProjectRepo.findByIdAndSetStatus(projectID, is_active))
+}
+
+export const assignProjectMember = async (req: Request, res: Response) => {
+    const { projectID } = req.params
+    const { invited_email, role } = req.body
+    res.status(200).json(await ProjectRepo.assignMemberToProject(projectID, invited_email, role))
+}
+
+export const setProjectMemberRole = async (req: Request, res: Response) => {
+    const { projectID, userID } = req.params
+    const { role } = req.body
+    res.status(204).json(await ProjectRepo.setRoleOfProjectMember(projectID, userID, role))
+}
+
+export const removeProjectMember = async (req: Request, res: Response) => {
+    const { projectID, userID } = req.params
+    res.status(204).json(await ProjectRepo.removeMemberFromProject(projectID, userID))
 }
