@@ -9,7 +9,7 @@ import UserRepo from "../users/user.repo";
 type GetProjectsByPageFunc = (page: number, is_active: boolean, view: 'updated_at' | 'created_at', order: typeof SORT_ORDER[number], keyword?: string)
     => Promise<{ total_count: number, projects: Project[] }>
 
-type GetMembersOfProjectByPageFunc = (projectID: string, page: number, keyword: string, role: typeof PROJECT_ROLES[number])
+type GetMembersOfProjectByPageFunc = (projectID: string, page: number, keyword?: string, role?: typeof PROJECT_ROLES[number])
     => Promise<{ total_count: number, members: Array<Object> }>
 
 export default class ProjectRepo {
