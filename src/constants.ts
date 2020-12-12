@@ -1,3 +1,5 @@
+export const SORT_ORDER = ["asc", "desc"] as const
+
 export const STORY_STATUS = ['unstarted', 'finished', 'delivered', 'accepted', 'rejected'] as const
 export const STORY_TYPES = ['feature', 'bug', 'chore'] as const
 

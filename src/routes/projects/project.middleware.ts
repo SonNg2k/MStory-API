@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
-import { REGEX_DIGITS_ONLY } from "../../constants";
+import { REGEX_DIGITS_ONLY, SORT_ORDER } from "../../constants";
 
 export const parseProjectQueryParams = (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query, { allowUnknown: true })
@@ -35,7 +35,7 @@ const querySchema = Joi.object({
 
     view: Joi.string().valid("updated_at", "created_at").required(),
 
-    order: Joi.string().valid("asc", "desc").required(),
+    order: Joi.string().valid(...SORT_ORDER).required(),
 
     page: Joi.string()
         .empty('')
