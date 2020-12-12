@@ -31,12 +31,11 @@ const logErrors = (err: Error, _req: Request, _res: Response, next: NextFunction
  */
 const returnErrToClient = (err: Error | HttpError | WriteError | ValidationError | any, _req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) return next(err);
-    // 1) Check if it is the SQL 'unique constraint violation' error thrown by DB
-    if (err.code === "23505" && err.name === "QueryFailedError")
+    if (err.code === '23505') // "QueryFailedError" --> unique_violation
         err = new createHttpError.Conflict('The resource has already existed')
-
-    // 2) Check if it is the error from Joi shema validator
-    if ((<string>err.stack).includes("ValidationError"))
+    if (err.code === '23503' && /user_id|project_members/.test(err.detail)) // "QueryFailedError" --> foreign_key_violation
+        err = new createHttpError.MethodNotAllowed('The user is currently a member of a project, therefore, not allowed to be removed from the system 🚫')
+    if ((<string>err.stack).includes("ValidationError")) // Check if it is the error from Joi shema validator
         err = new createHttpError.BadRequest('The payload or query string sent is invalid')
 
     // 3) Unknown error will be considered as:
