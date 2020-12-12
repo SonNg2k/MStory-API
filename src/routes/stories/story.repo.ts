@@ -8,7 +8,7 @@ type getStoriesByProjectIdAndPageFunc = (projectID: string, page: number, keywor
     => Promise<{ total_count: number, stories: Story[] }>
 
 export default class StoryRepo {
-    private static getRepo = () => getRepository(Story)
+    static getRepo = () => getRepository(Story)
 
     static getStoriesByProjectIdAndPage: getStoriesByProjectIdAndPageFunc = async (projectID, page = 1, keyword, status, type) => {
         const skip = (page - 1) * 6

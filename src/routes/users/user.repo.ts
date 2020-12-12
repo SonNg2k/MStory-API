@@ -4,7 +4,7 @@ import User from "../../entity/User";
 import { omit } from "../../helpers";
 
 export default class UserRepo {
-    private static getRepo = () => getRepository(User)
+    static getRepo = () => getRepository(User)
 
     private static findUserByUsername = async (username: string) => {
         username = username.toLowerCase()
