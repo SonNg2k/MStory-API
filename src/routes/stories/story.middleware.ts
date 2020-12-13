@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import Joi from "joi";
-import { getRepository } from "typeorm";
 import { REGEX_DIGITS_ONLY, STORY_STATUS, STORY_TYPES } from "../../constants";
-import ProjectMember from "../../entity/ProjectMember";
+import ProjectRepo from "../projects/project.repo";
 
 export const parseStoryQueryParams = async (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = querySchema.validate(req.query)
@@ -13,7 +12,6 @@ export const parseStoryQueryParams = async (req: Request, res: Response, next: N
     next()
 }
 
-const projectMemRepo = () => getRepository(ProjectMember)
 export const parseUpsertStory = async (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = storySchema.validate(req.body)
     if (error) return next(error)
@@ -23,7 +21,7 @@ export const parseUpsertStory = async (req: Request, res: Response, next: NextFu
     const { projectID } = req.params
     const { owner_ids = [] } = req.body
     for (const ownerID of owner_ids as string[]) {
-        const found = await projectMemRepo().findOne({ project: { project_id: projectID }, member: { user_id: ownerID } })
+        const found = await ProjectRepo.findLinkBetweenProjectAndUser(projectID, ownerID)
         if (!found) return next(new createHttpError.UnprocessableEntity("One of the story owners is NOT member of the project"))
     }
     req.body.owner_ids = owner_ids

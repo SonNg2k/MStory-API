@@ -65,6 +65,9 @@ export default class ProjectRepo {
         return { total_count, members } as any
     }
 
+    static findLinkBetweenProjectAndUser = async (projectID: string, userID: string) =>
+        await getRepository(ProjectMember).findOne({ project: { project_id: projectID }, member: { user_id: userID } })
+
     static createProject = async (newProject: DeepPartial<Project>) => {
         const project = await ProjectRepo.getRepo().create(newProject)
         return await ProjectRepo.getRepo().save(project)
