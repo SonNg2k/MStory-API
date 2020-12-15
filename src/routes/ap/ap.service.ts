@@ -1,8 +1,8 @@
 import createHttpError from "http-errors";
-import User from "../entity/User";
-import UserRepo from "../routes/users/user.repo";
+import User from "../../entity/User";
+import UserRepo from "../users/user.repo";
 
-export default class AuthService {
+export default class ApService {
     static async SignUp(email: string, password: string, fullname: string, username: string) {
         email = email.toLowerCase()
         const foundUser = await UserRepo.findUserByEmail(email) || new User()
