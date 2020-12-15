@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import createHttpError from "http-errors";
 import User from "../../entity/User";
 import UserRepo from "../users/user.repo";
@@ -13,5 +15,17 @@ export default class ApService {
         foundUser.fullname = fullname
         foundUser.username = username
         await UserRepo.getRepo().save(foundUser)
+    }
+
+    static async Login(username: string, plainPassword: string): Promise<{ user: User, token: string }> {
+        const foundUser = await UserRepo.findUserByUsername(username, true)
+        if (!foundUser || !foundUser.password) return Promise.reject(new createHttpError.Unauthorized("We cannot find an account with that username"))
+
+        const passwordMatched = await bcrypt.compare(plainPassword, foundUser.password)
+        if (!passwordMatched) return Promise.reject(new createHttpError.Unauthorized('Either username or password is incorrect'))
+
+        const claims = { user_id: foundUser.user_id }
+        const token = jwt.sign(claims, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '1h' })
+        return { user: foundUser, token }
     }
 }

@@ -5,21 +5,16 @@ import { omit } from "../../helpers";
 
 export default class UserRepo {
     static getRepo = () => getRepository(User)
-    /**
-     * User's password is included in the result and not found user will return a promise resolved with undefined
-     */
+    /** User's password is included in the result*/
     static findUserByEmail = async (email: string) =>
-        await getRepository(User).createQueryBuilder('u')
-            .select(['u.user_id', 'u.email', 'u.fullname', 'u.username', 'u.password'])
-            .where(`u.email = :email`, { email }).getOne()
-    /**
-     * User's password is excluded and not found user will return a rejected promise
-     */
-    private static findUserByUsername = async (username: string) => {
+        await genSelectUserQueryBuilder().where(`u.email = :email`, { email }).getOne()
+
+    /**The user's password is excluded from the result by default  */
+    static findUserByUsername = async (username: string, passwordIncluded?: boolean) => {
         username = username.toLowerCase()
-        const foundUser = await UserRepo.getRepo().findOne({ username })
-        if (!foundUser) return Promise.reject(new createHttpError.NotFound("The user does not exist"))
-        return foundUser
+        return (passwordIncluded) ?
+            await genSelectUserQueryBuilder().where(`u.username = :username`, { username }).getOne() :
+            await UserRepo.getRepo().findOne({ username })
     }
 
     static getUsersByPage = async (page: number = 1, keyword?: string, role?: string) => {
@@ -42,6 +37,7 @@ export default class UserRepo {
 
     static findByUsernameAndEdit = async (username: string, newUser: DeepPartial<User>) => {
         const userToEdit = await UserRepo.findUserByUsername(username)
+        if (!userToEdit) return Promise.reject(new createHttpError.NotFound("The user does not exist"))
         UserRepo.getRepo().merge(userToEdit, newUser)
         const result = await UserRepo.getRepo().save(userToEdit)
         return omit(result, ['password'])
@@ -49,6 +45,10 @@ export default class UserRepo {
 
     static findByUsernameAndDelete = async (username: string) => {
         const userToRemove = await UserRepo.findUserByUsername(username)
+        if (!userToRemove) return Promise.reject(new createHttpError.NotFound("The user does not exist"))
         return await UserRepo.getRepo().remove(userToRemove)
     }
 }
+
+const genSelectUserQueryBuilder = () => getRepository(User).createQueryBuilder('u')
+    .select(['u.user_id', 'u.email', 'u.fullname', 'u.username', 'u.password'])
