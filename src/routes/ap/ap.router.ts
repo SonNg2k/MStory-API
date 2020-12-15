@@ -14,7 +14,7 @@ router.route('/login')
     .post(asyncHandler(async (req: Request, res: Response) => {
         const { username, password } = req.body
         const { token } = await ApService.Login(username, password)
-        res.status(204).cookie('xs', token, { httpOnly: true, sameSite: 'none', maxAge: 3600000 }).json()
+        res.status(204).cookie('xs', token, { httpOnly: true, sameSite: 'none', secure: true }).json()
     }))
 
 export default router
