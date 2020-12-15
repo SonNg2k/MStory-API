@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { STORY_STATUS, STORY_TYPES } from "../../constants";
 import { omit } from "../../helpers";
 import StoryRepo from "./story.repo";
 
