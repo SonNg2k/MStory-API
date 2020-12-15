@@ -48,13 +48,13 @@ export default class User extends TrackingDate {
         this.user_id = ulid()
         this.email = this.email.toLowerCase()
         this.username = this.username.toLowerCase()
-        this.password = await bcrypt.hash(this.password, +(process.env.SALT_ROUNDS as string))
+        this.password = await bcrypt.hash(this.password, 10)
     }
 
     @BeforeUpdate()
     private async beforeUpdate() {
         this.email = this.email.toLowerCase()
         this.username = this.username.toLowerCase()
-        this.password = await bcrypt.hash(this.password, +(process.env.SALT_ROUNDS as string))
+        this.password = await bcrypt.hash(this.password, 10)
     }
 }
