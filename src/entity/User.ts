@@ -1,5 +1,6 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { ulid } from 'ulid';
+import bcrypt from 'bcrypt'
 import Project from "./Project";
 import ProjectMember from "./ProjectMember";
 import Story from "./Story";
@@ -43,14 +44,17 @@ export default class User extends TrackingDate {
     stories_owned: StoryOwner[]
 
     @BeforeInsert()
-    private beforeInsert() {
+    private async beforeInsert() {
         this.user_id = ulid()
         this.email = this.email.toLowerCase()
         this.username = this.username.toLowerCase()
+        this.password = await bcrypt.hash(this.password, +(process.env.SALT_ROUNDS as string))
     }
 
     @BeforeUpdate()
-    private lowerCaseEmail() {
+    private async beforeUpdate() {
         this.email = this.email.toLowerCase()
+        this.username = this.username.toLowerCase()
+        this.password = await bcrypt.hash(this.password, +(process.env.SALT_ROUNDS as string))
     }
 }

@@ -5,7 +5,16 @@ import { omit } from "../../helpers";
 
 export default class UserRepo {
     static getRepo = () => getRepository(User)
-
+    /**
+     * User's password is included in the result and not found user will return a promise resolved with undefined
+     */
+    static findUserByEmail = async (email: string) =>
+        await getRepository(User).createQueryBuilder('u')
+            .select(['u.user_id', 'u.email', 'u.fullname', 'u.username', 'u.password'])
+            .where(`u.email = :email`, { email }).getOne()
+    /**
+     * User's password is excluded and not found user will return a rejected promise
+     */
     private static findUserByUsername = async (username: string) => {
         username = username.toLowerCase()
         const foundUser = await UserRepo.getRepo().findOne({ username })
