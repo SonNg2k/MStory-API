@@ -30,7 +30,7 @@ export const connectDB = async () => {
 }
 
 export const setup = (app: Application) => {
-    app.use(cors())
+    app.use(cors({ origin: 'https://greenwich-internship-2020.github.io' }))
     app.use(express.json());
     app.use((req: Request, res: Response, next: NextFunction) => { // make "/path" and "/path/" to be the same
         const test = /\?[^]*\//.test(req.url);
