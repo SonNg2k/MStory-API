@@ -1,5 +1,6 @@
 import express, { Response, Request, NextFunction, Application } from 'express'
 import cors, { CorsOptions } from 'cors'
+import cookieParser from 'cookie-parser'
 import { createConnection } from 'typeorm';
 
 import routes from '../routes'
@@ -39,6 +40,7 @@ export const setup = (app: Application) => {
                 cb(new createHttpError.Unauthorized('Not allowed by CORS'))
     }
     app.use(cors(CORS_OPTIONS))
+    app.use(cookieParser())
     app.use(express.json());
     app.use((req: Request, res: Response, next: NextFunction) => { // make "/path" and "/path/" to be the same
         const test = /\?[^]*\//.test(req.url);
