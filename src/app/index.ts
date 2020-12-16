@@ -1,5 +1,5 @@
 import express, { Response, Request, NextFunction, Application } from 'express'
-import cors from 'cors'
+import cors, { CorsOptions } from 'cors'
 import { createConnection } from 'typeorm';
 
 import routes from '../routes'
@@ -30,7 +30,15 @@ export const connectDB = async () => {
 }
 
 export const setup = (app: Application) => {
-    app.use(cors({ origin: 'https://greenwich-internship-2020.github.io', credentials: true }))
+    const whitelist = (process.env.WHITELISTED_DOMAINS as string).split(', ')
+    const CORS_OPTIONS: CorsOptions = {
+        credentials: true,
+        origin: (origin = '', cb) =>
+            (whitelist.includes(origin) || !origin) ? // REST tools such as Postman does not have origin
+                cb(null, true) :
+                cb(new createHttpError.Unauthorized('Not allowed by CORS'))
+    }
+    app.use(cors(CORS_OPTIONS))
     app.use(express.json());
     app.use((req: Request, res: Response, next: NextFunction) => { // make "/path" and "/path/" to be the same
         const test = /\?[^]*\//.test(req.url);
