@@ -14,7 +14,7 @@ router.route('/login')
     .post(asyncHandler(async (req: Request, res: Response) => {
         const { username, password } = req.body
         const { token } = await ApService.Login(username, password)
-        res.cookie('xs', '', { httpOnly: true, sameSite: 'none', secure: true, expires: new Date('01 Jan 1970 00:00:00 GMT') })
+        res.cookie('xs', '', { httpOnly: true, sameSite: 'none', secure: true, maxAge: -1 })
         res.cookie('xs', token, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 3600000 })
         res.status(204).json()
     }))
