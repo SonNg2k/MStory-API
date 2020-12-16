@@ -24,7 +24,7 @@ export default class ApService {
         const passwordMatched = await bcrypt.compare(plainPassword, foundUser.password)
         if (!passwordMatched) return Promise.reject(new createHttpError.Unauthorized('Either username or password is incorrect'))
 
-        const claims = { user_id: foundUser.user_id }
+        const claims = { user_id: foundUser.user_id, last_login: new Date() }
         const token = jwt.sign(claims, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '1h' })
         return { user: foundUser, token }
     }
