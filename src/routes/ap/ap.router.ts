@@ -20,4 +20,10 @@ router.route('/login')
         res.status(200).json({ user_id, fullname })
     }))
 
+router.route('/logout')
+    .post(asyncHandler(async (req: Request, res: Response) => {
+        res.cookie('xs', '', { httpOnly: true, sameSite: 'none', secure: true, maxAge: -1 })
+        res.status(204).json()
+    }))
+
 export default router
