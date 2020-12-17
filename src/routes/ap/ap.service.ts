@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import createHttpError from "http-errors";
 import User from "../../entity/User";
 import UserRepo from "../users/user.repo";
+import { JwtPayload } from '../../types/ap';
 
 export default class ApService {
     static async SignUp(email: string, password: string, fullname: string, username: string) {
@@ -24,8 +25,13 @@ export default class ApService {
         const passwordMatched = await bcrypt.compare(plainPassword, foundUser.password)
         if (!passwordMatched) return Promise.reject(new createHttpError.Unauthorized('Either username or password is incorrect'))
 
-        const claims = { user_id: foundUser.user_id, last_login: new Date() }
+        const claims: JwtPayload = { user_id: foundUser.user_id, last_login: new Date() }
         const token = jwt.sign(claims, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '1h' })
         return { user: foundUser, token }
+    }
+
+    /** Returns a Promise resolved with the decoded payload (claims) of the jwt token */
+    static async VerifyToken(token: string): Promise<JwtPayload> {
+        return await Promise.resolve(<JwtPayload>jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string))
     }
 }
