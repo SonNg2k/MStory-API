@@ -7,36 +7,37 @@ import { fetchProjectStories, upsertProjectStory } from '../stories/story.contro
 import { parseStoryQueryParams, parseUpsertStory } from '../stories/story.middleware';
 import { fetchProjects, fetchSpecificProject, updateProjectStatus, upsertProject } from './project.controller';
 import { validateSetProjectStatus, parseProjectQueryParams, validateUpsertProject } from './project.middleware';
+import { authUser } from '../ap/ap.middleware';
 
 const router = express.Router();
 
 router.route("/")
-    .get(parseProjectQueryParams, asyncHandler(fetchProjects))
-    .post(validateUpsertProject, asyncHandler(upsertProject))
+    .get(authUser, parseProjectQueryParams, asyncHandler(fetchProjects))
+    .post(authUser, validateUpsertProject, asyncHandler(upsertProject))
 
 router.route("/:projectID")
     .get(checkID('projectID'), asyncHandler(fetchSpecificProject))
-    .put(checkID('projectID'), validateUpsertProject, asyncHandler(upsertProject))
-    .delete(checkID('projectID'), asyncHandler(deleteEntityDoc(Project, 'projectID')))
+    .put(authUser, checkID('projectID'), validateUpsertProject, asyncHandler(upsertProject))
+    .delete(authUser, checkID('projectID'), asyncHandler(deleteEntityDoc(Project, 'projectID')))
 
 router.route("/:projectID/set_status")
-    .put(checkID('projectID'), validateSetProjectStatus, asyncHandler(updateProjectStatus))
+    .put(authUser, checkID('projectID'), validateSetProjectStatus, asyncHandler(updateProjectStatus))
 
 router.route("/:projectID/stories")
-    .get(checkID('projectID'), parseStoryQueryParams, asyncHandler(fetchProjectStories))
-    .post(checkID('projectID'), parseUpsertStory, asyncHandler(upsertProjectStory))
+    .get(authUser, checkID('projectID'), parseStoryQueryParams, asyncHandler(fetchProjectStories))
+    .post(authUser, checkID('projectID'), parseUpsertStory, asyncHandler(upsertProjectStory))
 
 router.route("/:projectID/stories/:storyID")
-    .delete(checkID('projectID'), checkID('storyID'), asyncHandler(deleteEntityDoc(Story, 'storyID')))
+    .delete(authUser, checkID('projectID'), checkID('storyID'), asyncHandler(deleteEntityDoc(Story, 'storyID')))
 
 router.route("/:projectID/members")
-    .get(checkID('projectID'), asyncHandler(fetchMembersOfProject))
-    .put(checkID('projectID'), asyncHandler(assignProjectMember))
+    .get(authUser, checkID('projectID'), asyncHandler(fetchMembersOfProject))
+    .put(authUser, checkID('projectID'), asyncHandler(assignProjectMember))
 
 router.route('/:projectID/members/:userID')
-    .delete(checkID('projectID'), checkID('userID'), asyncHandler(removeProjectMember))
+    .delete(authUser, checkID('projectID'), checkID('userID'), asyncHandler(removeProjectMember))
 
 router.route('/:projectID/members/:userID/set_role')
-    .put(checkID('projectID'), checkID('userID'), asyncHandler(setProjectMemberRole))
+    .put(authUser, checkID('projectID'), checkID('userID'), asyncHandler(setProjectMemberRole))
 
 export default router
