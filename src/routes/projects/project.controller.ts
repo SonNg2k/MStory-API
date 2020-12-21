@@ -11,13 +11,14 @@ export const fetchSpecificProject = async (req: Request, res: Response) =>
 
 export const fetchProjects = async (req: Request, res: Response) => {
     const { keyword, is_active, view, order, page } = req.query as any
-    res.status(200).json(await ProjectRepo.getProjectsByPage(page, is_active, view, order, keyword))
+    const { user_id } = req.user
+    res.status(200).json(await ProjectRepo.findProjects({ page, is_active, view, order, keyword, user_id }))
 }
 
 export const fetchMembersOfProject = async (req: Request, res: Response) => {
     const { projectID } = req.params
     const { keyword, role, page } = req.query as any
-    res.status(200).json(await ProjectRepo.getMembersOfProjectByPage(projectID, page, keyword, role))
+    res.status(200).json(await ProjectRepo.findMembers({ projectID, page, keyword, role }))
 }
 
 export const upsertProject = async (req: Request, res: Response) => {

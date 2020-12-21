@@ -1,35 +1,51 @@
 import createHttpError from "http-errors";
-import { DeepPartial, getConnection, getManager, getRepository, ILike } from "typeorm";
-import { PROJECT_ROLES, SORT_ORDER } from "../../constants";
+import { DeepPartial, getConnection, getManager, getRepository } from "typeorm";
+import { PROJECT_ROLES } from "../../constants";
 import Project from "../../entity/Project";
 import ProjectMember from "../../entity/ProjectMember";
 import { constructUserFromEmail, findEntityDocByID, omit, removeArrayItem } from "../../helpers";
+import { FindMembersFunc, FindProjectsFunc } from "../../types/projects";
 import UserRepo from "../users/user.repo";
-
-type GetProjectsByPageFunc = (page: number, is_active: boolean, view: 'updated_at' | 'created_at', order: typeof SORT_ORDER[number], keyword?: string)
-    => Promise<{ total_count: number, projects: Project[] }>
-
-type GetMembersOfProjectByPageFunc = (projectID: string, page: number, keyword?: string, role?: typeof PROJECT_ROLES[number])
-    => Promise<{ total_count: number, members: Array<Object> }>
-
 export default class ProjectRepo {
     static getRepo = () => getRepository(Project)
 
-    static getProjectsByPage: GetProjectsByPageFunc = async (page = 1, is_active, view, order, keyword) => {
-        let whereClause = { is_active }
-        whereClause = (keyword) ? { ...whereClause, name: ILike(`%${keyword}%`) } as any : whereClause
+    static findProjects: FindProjectsFunc = async (options) => {
+        const { page = 1, is_active, view, order, keyword, user_id } = options
         const skip = (page - 1) * 6
-        const [projects, total_count] = await ProjectRepo.getRepo().findAndCount({
-            select: ["project_id", "name", "description", "is_public", "updated_at"],
-            where: whereClause,
-            order: { [view]: order.toUpperCase() },
-            skip: skip,
-            take: 6
-        })
-        return { total_count, projects }
+
+        let queryParams = []
+        let selectConds = ''
+        if (keyword) {
+            selectConds += ` and p.name ilike ($1)`
+            queryParams[0] = `%${keyword}%`
+        }
+        if (user_id) {
+            selectConds += ` and pm.user_id = $${queryParams.length + 1}`
+            queryParams = [...queryParams, user_id]
+        }
+        const selectQuery = `
+        select p.project_id, p.name, p.description, p.is_public, p.updated_at
+        from project_members pm
+        inner join projects p on p.project_id = pm.project_id and p.is_active = ${is_active} ${selectConds}
+        order by p.${view} ${order}
+        offset ${skip}
+        limit 6;`
+
+        const countQuery = `
+        select COUNT(distinct (pm.project_id, pm.user_id)) as cnt
+        from project_members pm
+        inner join projects p on p.project_id = pm.project_id and p.is_active = ${is_active} ${selectConds};`
+        let projects = getManager().query(selectQuery, queryParams)
+        let total_count = getManager().query(countQuery, queryParams)
+        projects = await projects
+        total_count = await total_count
+        // @ts-ignore
+        total_count = +(total_count[0].cnt)
+        return { total_count, projects } as any
     }
 
-    static getMembersOfProjectByPage: GetMembersOfProjectByPageFunc = async (projectID, page = 1, keyword, role) => {
+    static findMembers: FindMembersFunc = async (options) => {
+        const { projectID, page = 1, keyword, role } = options
         const skip = (page - 1) * 6
         let queryParams = [projectID, skip]
         let selectConds = ''
