@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import Project from "../../entity/Project";
 import { findEntityDocByID } from "../../helpers";
+import { JwtPayload } from "../../types/ap";
 import ProjectRepo from "./project.repo";
 
 const projectRepo = () => getRepository(Project)
@@ -11,7 +12,7 @@ export const fetchSpecificProject = async (req: Request, res: Response) =>
 
 export const fetchProjects = async (req: Request, res: Response) => {
     const { keyword, is_active, view, order, page } = req.query as any
-    const { user_id } = req.user
+    const { user_id } = req.user as JwtPayload
     res.status(200).json(await ProjectRepo.findProjects({ page, is_active, view, order, keyword, user_id }))
 }
 
@@ -24,12 +25,13 @@ export const fetchMembersOfProject = async (req: Request, res: Response) => {
 export const upsertProject = async (req: Request, res: Response) => {
     const { name, description, is_public } = req.body
     const { projectID } = req.params
+    const { user_id } = req.user as JwtPayload
     let project
 
     if (projectID) { // PUT --> /projects/:projectID
         project = await ProjectRepo.findByIdAndUpdate(projectID, { name, description, is_public })
     } else // POST --> /projects
-        project = await ProjectRepo.createProject({ name, description, is_public })
+        project = await ProjectRepo.createProject({ name, description, is_public, creator_id: user_id })
     res.status(200).json(project)
 }
 

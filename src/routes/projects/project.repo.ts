@@ -4,7 +4,7 @@ import { PROJECT_ROLES } from "../../constants";
 import Project from "../../entity/Project";
 import ProjectMember from "../../entity/ProjectMember";
 import { constructUserFromEmail, findEntityDocByID, omit, removeArrayItem } from "../../helpers";
-import { FindMembersFunc, FindProjectsFunc } from "../../types/projects";
+import { CreateProjectFunc, FindMembersFunc, FindProjectsFunc } from "../../types/projects";
 import UserRepo from "../users/user.repo";
 export default class ProjectRepo {
     static getRepo = () => getRepository(Project)
@@ -84,9 +84,15 @@ export default class ProjectRepo {
     static findLinkBetweenProjectAndUser = async (projectID: string, userID: string) =>
         await getRepository(ProjectMember).findOne({ project: { project_id: projectID }, member: { user_id: userID } })
 
-    static createProject = async (newProject: DeepPartial<Project>) => {
-        const project = await ProjectRepo.getRepo().create(newProject)
-        return await ProjectRepo.getRepo().save(project)
+    static createProject: CreateProjectFunc = async (newProject) => {
+        const { name, description, is_public, creator_id } = newProject
+        const project = await ProjectRepo.getRepo().create({ name, description, is_public, creator: { user_id: creator_id } })
+        const saved = await ProjectRepo.getRepo().save(project)
+
+        // The user who creates a project is also the member of that project
+        await getConnection().createQueryBuilder().insert().into(ProjectMember)
+            .values({ project: { project_id: saved.project_id }, member: { user_id: creator_id }, role: 'owner' }).execute()
+        return saved
     }
 
     static findByIdAndUpdate = async (projectID: string, newProject: DeepPartial<Project>) => {

@@ -6,7 +6,7 @@ import ApService from "./ap.service";
 export const authUser = async (req: Request, res: Response, next: NextFunction) => {
     const { xs: token } = req.cookies
     const { user_id } = <JwtPayload>await ApService.VerifyToken(token)
-        .catch(() => next(new createHttpError.Unauthorized('User is not logged in')))
+        .catch(() => next(new createHttpError.Unauthorized('You are not logged in')))
     req.user = { user_id }
     next()
 }

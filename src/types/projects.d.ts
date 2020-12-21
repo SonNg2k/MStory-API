@@ -25,3 +25,14 @@ export interface FindMembersOptions {
 export interface FindMembersFunc {
     (options: FindMembersOptions): Promise<{ total_count: number, members: Array<Object> }>
 }
+
+export interface ProjectPartial {
+    name: string
+    description: string
+    is_public: boolean
+    creator_id: string
+}
+
+export interface CreateProjectFunc {
+    (entityLike: ProjectPartial): Promise<Project>
+}
