@@ -2,7 +2,8 @@ import { DeepPartial, getConnection, getManager, getRepository, ILike } from "ty
 import { STORY_STATUS, STORY_TYPES } from "../../constants"
 import Story from "../../entity/Story"
 import StoryOwner from "../../entity/StoryOwner"
-import { findEntityDocByID, buildStoryOwnerList } from "../../helpers"
+import { findEntityDocByID, buildStoryOwnerList, omit } from "../../helpers"
+import { CreateStoryFunc } from "../../types/stories"
 
 type getStoriesByProjectIdAndPageFunc = (projectID: string, page: number, keyword?: string, status?: typeof STORY_STATUS[number], type?: typeof STORY_TYPES[number])
     => Promise<{ total_count: number, stories: Story[] }>
@@ -54,16 +55,17 @@ export default class StoryRepo {
      * @param newStoryDoc: A new story doc that u want to add to DB (the list of story owner's ids is excluded from this doc)
      * @param owner_ids: A list of story owner's ids to link to the newStoryDoc
      */
-    static createStory = async (newStoryDoc: DeepPartial<Story>, owner_ids: string[] = []) => {
+    static createStory: CreateStoryFunc = async (newStoryDoc, owner_ids) => {
         const storyToInsert = Object.assign(new Story(), newStoryDoc)
         const result = await getConnection().createQueryBuilder().insert().into(Story).values(storyToInsert).execute()
         const { story_id } = result.identifiers[0]
+
         // Link the userIDs to the added story...
         if (owner_ids.length > 0) await getConnection().createQueryBuilder().insert().into(StoryOwner)
             .values(buildStoryOwnerList(story_id, owner_ids)).execute()
         storyToInsert.owners = await StoryRepo.findStoryOwners(story_id) as any
         storyToInsert.status = 'unstarted'
-        return storyToInsert
+        return omit(storyToInsert, ['creator']) as Story
     }
     /**
      * This function only updates the story with the given ID. It does NOT update the list of story owners
