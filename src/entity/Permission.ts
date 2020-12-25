@@ -1,17 +1,13 @@
-import { BeforeInsert, Column, Entity, ManyToMany, PrimaryColumn } from "typeorm";
-import { ulid } from "ulid";
+import { Column, Entity, ManyToMany, PrimaryColumn } from "typeorm";
 import Role from "./Role";
 
 @Entity({ name: 'permissions' })
 export default class Permission {
-    @PrimaryColumn({ type: 'char', length: 26 })
+    @PrimaryColumn({ type: 'varchar', length: 26 })
     permission_id: string
 
     @Column({ type: 'varchar', length: 80, unique: true })
     name: string
-
-    @Column({ type: 'varchar', length: 80, unique: true })
-    code: string
 
     @Column({ type: 'varchar', length: 80 })
     description: string
@@ -24,9 +20,4 @@ export default class Permission {
 
     @ManyToMany(type => Role, role => role.permissions)
     roles: Role[]
-
-    @BeforeInsert()
-    private beforeInsert() {
-        this.permission_id = ulid()
-    }
 }
