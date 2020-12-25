@@ -2,10 +2,10 @@ import { BeforeInsert, Column, Entity, ManyToMany, PrimaryColumn } from "typeorm
 import { ulid } from "ulid";
 import Role from "./Role";
 
-@Entity({ name: 'rights' })
-export default class Right {
+@Entity({ name: 'permissions' })
+export default class Permission {
     @PrimaryColumn({ type: 'char', length: 26 })
-    right_id: string
+    permission_id: string
 
     @Column({ type: 'varchar', length: 80, unique: true })
     name: string
@@ -22,11 +22,11 @@ export default class Right {
     @Column({ type: 'varchar', length: 60 })
     url_path: string
 
-    @ManyToMany(type => Role, role => role.rights)
+    @ManyToMany(type => Role, role => role.permissions)
     roles: Role[]
 
     @BeforeInsert()
     private beforeInsert() {
-        this.right_id = ulid()
+        this.permission_id = ulid()
     }
 }

@@ -1,6 +1,6 @@
 import { BeforeInsert, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
 import { ulid } from "ulid";
-import Right from "./Right";
+import Permission from "./Permission";
 import User from "./User";
 
 @Entity({ name: 'roles' })
@@ -14,19 +14,19 @@ export default class Role {
     @Column({ type: 'varchar', length: 80 })
     description: string
 
-    @ManyToMany(type => Right, right => right.roles)
+    @ManyToMany(type => Permission, permission => permission.roles)
     @JoinTable({
-        name: 'role_rights', // name of the brige table
+        name: 'role_permissions', // name of the brige table
         joinColumn: {
             referencedColumnName: 'role_id',
             name: 'role_id'
         },
         inverseJoinColumn: {
-            referencedColumnName: 'right_id',
-            name: 'right_id'
+            referencedColumnName: 'permission_id',
+            name: 'permission_id'
         }
     })
-    rights: Right[]
+    permissions: Permission[]
 
     @OneToMany(type => User, user => user.role_id)
     users: User[]
