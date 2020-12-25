@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 import { ulid } from 'ulid';
 import bcrypt from 'bcrypt'
 import Project from "./Project";
@@ -6,6 +6,7 @@ import ProjectMember from "./ProjectMember";
 import Story from "./Story";
 import StoryOwner from "./StoryOwner";
 import TrackingDate from "./TrackingDate";
+import Role from "./Role";
 
 @Entity({ name: "users" })
 export default class User extends TrackingDate {
@@ -42,6 +43,10 @@ export default class User extends TrackingDate {
     // A user can be an owner of 0-n stories
     @OneToMany(type => StoryOwner, storyOwner => storyOwner.owner)
     stories_owned: StoryOwner[]
+
+    @ManyToOne(type => Role, role => role.users, { onDelete: 'SET NULL' })
+    @JoinColumn({ name: "role_id" })
+    role_id: Role
 
     @BeforeInsert()
     private async beforeInsert() {
