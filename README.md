@@ -1,15 +1,11 @@
-## Validation
-------
+# TypeORM Notes
 
-### /users
+```typescript
+class Project { ... 
+  	@JoinColumn() // Denotes that the following column is the owner side, which will be added to the 'projects' table. Each project doc points to the user who created it in unidirectional way. The column will be suffixed with the keyword 'Id'. Same thing to JoinTable
+		creator: User 	// generated column: creatorId
+    // Source: https://github.com/typeorm/typeorm/issues/794. 
+}
+```
 
-- **req.query**
-  - keyword?
-    - Contain letters and spaces only. No consecutive spaces
-    - No leading/traling spaces
-    - Maximum 50 characters
-  - page?
-    - contain digits only
-    - default to '1' if undefined
-
-###
+**Query builder syntax to join tables is terrible. In some cases, it generates the correct SQL queries (tested in DataGrip) but fails to read the returned result**
