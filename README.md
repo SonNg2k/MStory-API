@@ -9,4 +9,5 @@ class Project { ...
 ```
 
 **Query builder syntax to join tables is terrible. In some cases, it generates the correct SQL queries (tested in DataGrip) but fails to read the returned result**
+
 **Research the Regex in helpers, error handler, and constants**
